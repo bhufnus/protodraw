@@ -65,6 +65,14 @@ export default function Home() {
 
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
     setIsDrawing(true);
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const context = canvas.getContext("2d");
+    if (!context) return;
+
+    context.beginPath();
+    context.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
     draw(e);
   };
 
@@ -86,8 +94,6 @@ export default function Home() {
 
     context.lineTo(x, y);
     context.stroke();
-    context.beginPath();
-    context.moveTo(x, y);
   };
 
   const clearCanvas = () => {
