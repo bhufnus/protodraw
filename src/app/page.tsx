@@ -219,7 +219,7 @@ export default function Home() {
             value={inkLevel}
             className="mb-2"
             style={{
-              background: "black",
+              background: "white",
               "--radix-progress-indicator-transform": `translateX(-${100 - (inkLevel || 0)}%)`,
               "--radix-progress-indicator-background-color": "linear-gradient(to right, red, yellow, green)"
             }}
@@ -329,4 +329,3 @@ export default function Home() {
     </div>
   );
 }
-
