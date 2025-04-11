@@ -28,11 +28,16 @@ const colors = [
 ];
 
 const drawingPrompts = [
-  "A whimsical cat in a hat",
-  "A futuristic cityscape",
-  "A serene forest landscape",
-  "An abstract explosion of colors",
-  "A portrait of a mysterious person",
+  "Cat",
+  "Cityscape",
+  "Forest",
+  "Explosion",
+  "Portrait",
+  "Mountain",
+  "River",
+  "House",
+  "Tree",
+  "Car",
 ];
 
 const MAX_INK = 100;
