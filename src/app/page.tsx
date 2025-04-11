@@ -6,8 +6,8 @@ import { Slider } from "@/components/ui/slider";
 import { Download, RefreshCw, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
-import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
+import { Progress } from "@/components/ui/progress";
 
 const colors = [
   "#000000",
@@ -215,7 +215,15 @@ export default function Home() {
           <p className="text-sm text-muted-foreground mt-1">
             Ink Level: {inkLevel.toFixed(1)} / {MAX_INK}
           </p>
-          <Progress value={inkLevel} className="mb-2 bg-gradient-to-r from-red-500 via-yellow-500 to-green-500" />
+          <Progress
+            value={inkLevel}
+            className="mb-2"
+            style={{
+              background: "white",
+              "--radix-progress-indicator-transform": `translateX(-${100 - (inkLevel || 0)}%)`,
+              "--radix-progress-indicator-background-color": "linear-gradient(to right, red, yellow, green)"
+            }}
+          />
         </div>
 
         <div className="mb-4">
