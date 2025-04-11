@@ -3,11 +3,12 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { Download, RefreshCw, Settings } from "lucide-react";
+import { Download, RefreshCw, Settings, Home } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
+import { useRouter } from "next/navigation";
 
 const colors = [
   "#000000",
@@ -60,6 +61,8 @@ export default function Game() {
   const [inkDepletionSpeed, setInkDepletionSpeed] = useState(0.115);
   const [devToolsOpen, setDevToolsOpen] = useState(false);
   const [randomizeColor, setRandomizeColor] = useState(true);
+    const router = useRouter();
+
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -210,6 +213,10 @@ export default function Game() {
 
       {/* Left Sidebar - Drawing Tools */}
       <div className="w-1/4 p-4 flex flex-col bg-secondary rounded-md">
+        <Button variant="secondary" onClick={() => router.push('/')} className="w-full mt-2">
+          <Home className="mr-2 h-4 w-4" />
+          Home
+        </Button>
         <h2 className="text-lg font-bold mb-4">Drawing Tools</h2>
 
         <div className="mb-4">
@@ -344,4 +351,3 @@ export default function Game() {
     </div>
   );
 }
-
