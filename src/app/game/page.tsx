@@ -61,11 +61,13 @@ export default function Game() {
   const [inkDepletionSpeed, setInkDepletionSpeed] = useState(0.115);
   const [devToolsOpen, setDevToolsOpen] = useState(false);
   const [randomizeColor, setRandomizeColor] = useState(true);
-    const router = useRouter();
-    const searchParams = useSearchParams();
-    const lobbyCode = searchParams.get('lobby');
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const lobbyCode = searchParams.get('lobby');
+  const nickname = searchParams.get('nickname');
 
-    const [previousColor, setPreviousColor] = useState("#000000");
+  const [previousColor, setPreviousColor] = useState("#000000");
+  const [connectedUsers, setConnectedUsers] = useState([nickname]);
 
 
   useEffect(() => {
@@ -123,15 +125,15 @@ export default function Game() {
 
   const endDrawing = () => {
     setIsDrawing(false);
-      if (randomizeColor) {
-          let newColor;
-          do {
-              newColor = colors[Math.floor(Math.random() * colors.length)];
-          } while (newColor === previousColor); // Ensure it's not the same as the last color
+    if (randomizeColor) {
+      let newColor;
+      do {
+        newColor = colors[Math.floor(Math.random() * colors.length)];
+      } while (newColor === previousColor); // Ensure it's not the same as the last color
 
-          setSelectedColor(newColor);
-          setPreviousColor(newColor);
-      }
+      setSelectedColor(newColor);
+      setPreviousColor(newColor);
+    }
   };
 
   const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -240,9 +242,7 @@ export default function Game() {
             className="mb-2"
             style={{
               background: "white",
-              "--radix-progress-indicator-transform": `translateX(-${
-                100 - (inkLevel || 0)
-              }%`,
+              "--radix-progress-indicator-transform": `translateX(-${100 - (inkLevel || 0)}%)`,
             }}
           />
         </div>
@@ -267,9 +267,8 @@ export default function Game() {
             {colors.map((color) => (
               <button
                 key={color}
-                className={`w-6 h-6 rounded-full border-2 ${
-                  selectedColor === color ? "border-teal-500" : "border-transparent"
-                }`}
+                className={`w-6 h-6 rounded-full border-2 ${selectedColor === color ? "border-teal-500" : "border-transparent"
+                  }`}
                 style={{ backgroundColor: color }}
                 onClick={() => setSelectedColor(color)}
               />
@@ -340,6 +339,15 @@ export default function Game() {
       <div className="w-3/4 flex flex-col items-center justify-center p-4">
         <h1 className="text-2xl font-bold mb-2">Draw: {drawingPrompt}</h1>
         <h2>Lobby: {lobbyCode}</h2>
+        <h3>Nickname: {nickname}</h3>
+        <div>
+          Connected Users:
+          <ul>
+            {connectedUsers?.map((user, index) => (
+              <li key={index}>{user}</li>
+            ))}
+          </ul>
+        </div>
 
         <canvas
           ref={canvasRef}

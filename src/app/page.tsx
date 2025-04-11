@@ -19,16 +19,17 @@ export default function Home() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [joinCode, setJoinCode] = useState('');
+  const [nickname, setNickname] = useState('');
 
   const handleCreateNewGame = () => {
     setIsLoading(true);
     const newGameCode = generateGameCode(7);
-    router.push(`/game?lobby=${newGameCode}`);
+    router.push(`/game?lobby=${newGameCode}&nickname=Guest`);
   };
 
   const handleJoinGame = () => {
     setIsLoading(true);
-    router.push(`/game?lobby=${joinCode}`);
+    router.push(`/game?lobby=${joinCode}&nickname=${nickname}`);
   };
 
   return (
@@ -64,10 +65,17 @@ export default function Home() {
             onChange={(e) => setJoinCode(e.target.value)}
             className="w-full max-w-xs"
           />
+          <Input
+            type="text"
+            placeholder="Enter Nickname"
+            value={nickname}
+            onChange={(e) => setNickname(e.target.value)}
+            className="w-full max-w-xs"
+          />
           <Button
             className="bg-secondary text-secondary-foreground rounded-md px-4 py-2 hover:bg-secondary/80 disabled:bg-secondary/50"
             onClick={handleJoinGame}
-            disabled={isLoading || joinCode.length !== 7}
+            disabled={isLoading || joinCode.length !== 7 || nickname.length === 0}
           >
             {isLoading ? (
               <>
@@ -75,12 +83,17 @@ export default function Home() {
                 Joining Game...
               </>
             ) : (
-              "Join Game"
+            "Join Game"
             )}
           </Button>
-          {joinCode.length !== 7 && (
+          {(joinCode.length !== 7) && (
             <p className="text-sm text-muted-foreground">
               Lobby code must be 7 characters long.
+            </p>
+          )}
+          {(nickname.length === 0) && (
+             <p className="text-sm text-muted-foreground">
+              Nickname is required.
             </p>
           )}
         </div>
@@ -88,3 +101,4 @@ export default function Home() {
     </div>
   );
 }
+
