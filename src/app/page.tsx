@@ -32,6 +32,8 @@ export default function Home() {
   const [brushSize, setBrushSize] = useState(5);
   const [isDrawing, setIsDrawing] = useState(false);
   const { toast } = useToast();
+  const lastX = useRef<number>(0);
+  const lastY = useRef<number>(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -65,6 +67,9 @@ export default function Home() {
 
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
     setIsDrawing(true);
+    lastX.current = e.nativeEvent.offsetX;
+    lastY.current = e.nativeEvent.offsetY;
+
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -73,7 +78,6 @@ export default function Home() {
 
     context.beginPath();
     context.moveTo(e.nativeEvent.offsetX, e.nativeEvent.offsetY);
-    draw(e);
   };
 
   const endDrawing = () => {
@@ -92,9 +96,25 @@ export default function Home() {
     const x = e.nativeEvent.offsetX;
     const y = e.nativeEvent.offsetY;
 
+    // Calculate the distance moved
+    const dx = x - lastX.current;
+    const dy = y - lastY.current;
+
+    // Move the canvas content in the opposite direction
+    context.translate(-dx, -dy);
+
+    // Redraw the content to reflect the translation
+    context.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+
+    // Restore the translation to draw the new line
+    context.translate(dx, dy);
     context.lineTo(x, y);
     context.stroke();
+
+    lastX.current = x;
+    lastY.current = y;
   };
+
 
   const clearCanvas = () => {
     const canvas = canvasRef.current;
