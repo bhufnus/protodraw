@@ -7,6 +7,7 @@ import { Download, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { Progress } from "@/components/ui/progress";
+import { Input } from "@/components/ui/input";
 
 const colors = [
   "#000000",
@@ -54,6 +55,8 @@ export default function Home() {
   const [drawingPrompt, setDrawingPrompt] = useState(
     drawingPrompts[Math.floor(Math.random() * drawingPrompts.length)]
   );
+
+  const [guess, setGuess] = useState("");
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -133,7 +136,7 @@ export default function Home() {
     lastX.current = x;
     lastY.current = y;
 
-    setInkLevel((prevInk) => Math.max(0, prevInk - 0.1)); // Reduce ink level
+    setInkLevel((prevInk) => Math.max(0, prevInk - 0.115)); // Reduce ink level faster
   };
 
 
@@ -178,6 +181,24 @@ export default function Home() {
     setDrawingPrompt(
       drawingPrompts[Math.floor(Math.random() * drawingPrompts.length)]
     );
+  };
+
+  const handleGuessSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (guess.trim().toLowerCase() === drawingPrompt.toLowerCase()) {
+      toast({
+        title: "Correct!",
+        description: "You guessed the prompt!",
+      });
+      generateNewPrompt();
+      clearCanvas();
+    } else {
+      toast({
+        title: "Incorrect",
+        description: "Try again!",
+      });
+    }
+    setGuess("");
   };
 
   return (
@@ -240,6 +261,16 @@ export default function Home() {
           Download
         </Button>
       </div>
+      <form onSubmit={handleGuessSubmit} className="flex mt-4">
+        <Input
+          type="text"
+          placeholder="Guess the drawing!"
+          value={guess}
+          onChange={(e) => setGuess(e.target.value)}
+          className="mr-2"
+        />
+        <Button type="submit">Guess!</Button>
+      </form>
     </div>
   );
 }
