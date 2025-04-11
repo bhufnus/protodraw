@@ -64,7 +64,7 @@ export default function Game() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const lobbyCode = searchParams.get('lobby');
-  const nickname = searchParams.get('nickname');
+  const nickname = searchParams.get('nickname') || 'Guest';
 
   const [previousColor, setPreviousColor] = useState("#000000");
   const [connectedUsers, setConnectedUsers] = useState([nickname]);

@@ -24,7 +24,7 @@ export default function Home() {
   const handleCreateNewGame = () => {
     setIsLoading(true);
     const newGameCode = generateGameCode(7);
-    router.push(`/game?lobby=${newGameCode}&nickname=Guest`);
+    router.push(`/waiting-room?lobby=${newGameCode}`);
   };
 
   const handleJoinGame = () => {
@@ -101,4 +101,3 @@ export default function Home() {
     </div>
   );
 }
-
