@@ -215,7 +215,7 @@ export default function Home() {
           <p className="text-sm text-muted-foreground mt-1">
             Ink Level: {inkLevel.toFixed(1)} / {MAX_INK}
           </p>
-          <Progress value={inkLevel} className="mb-2" />
+          <Progress value={inkLevel} className="mb-2 bg-gradient-to-r from-red-500 via-yellow-500 to-green-500" />
         </div>
 
         <div className="mb-4">
