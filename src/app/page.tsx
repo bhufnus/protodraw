@@ -96,19 +96,11 @@ export default function Home() {
     const x = e.nativeEvent.offsetX;
     const y = e.nativeEvent.offsetY;
 
-    // Calculate the distance moved
-    const dx = x - lastX.current;
-    const dy = y - lastY.current;
-
-    // Move the canvas content in the opposite direction
-    context.translate(-dx, -dy);
-
-    // Redraw the content to reflect the translation
-    context.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
-
-    // Restore the translation to draw the new line
-    context.translate(dx, dy);
-    context.lineTo(x, y);
+    // Draw a line from the last position to the current position,
+    // but in the opposite direction of the cursor's movement.
+    context.beginPath();
+    context.moveTo(lastX.current, lastY.current);
+    context.lineTo(2 * lastX.current - x, 2 * lastY.current - y);
     context.stroke();
 
     lastX.current = x;
