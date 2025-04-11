@@ -27,6 +27,14 @@ const colors = [
   "#808080",
 ];
 
+const drawingPrompts = [
+  "A whimsical cat in a hat",
+  "A futuristic cityscape",
+  "A serene forest landscape",
+  "An abstract explosion of colors",
+  "A portrait of a mysterious person",
+];
+
 const MAX_INK = 100;
 
 export default function Home() {
@@ -38,6 +46,9 @@ export default function Home() {
   const lastX = useRef<number>(0);
   const lastY = useRef<number>(0);
   const [inkLevel, setInkLevel] = useState(MAX_INK);
+  const [drawingPrompt, setDrawingPrompt] = useState(
+    drawingPrompts[Math.floor(Math.random() * drawingPrompts.length)]
+  );
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -158,9 +169,16 @@ export default function Home() {
     });
   };
 
+  const generateNewPrompt = () => {
+    setDrawingPrompt(
+      drawingPrompts[Math.floor(Math.random() * drawingPrompts.length)]
+    );
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-muted">
       <Toaster />
+      <h1 className="text-2xl font-bold mb-4">Draw: {drawingPrompt}</h1>
        <div className="mb-4">
         <Progress value={inkLevel} />
         <p className="text-sm text-muted-foreground mt-1">Ink Level: {inkLevel.toFixed(1)} / {MAX_INK}</p>
@@ -202,6 +220,9 @@ export default function Home() {
       ></canvas>
 
       <div className="flex justify-center gap-4 mt-4">
+        <Button variant="secondary" onClick={generateNewPrompt}>
+          Generate Prompt
+        </Button>
          <Button variant="secondary" onClick={refillInk} disabled={inkLevel === MAX_INK}>
           Refill Ink
         </Button>
