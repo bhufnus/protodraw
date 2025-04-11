@@ -63,6 +63,8 @@ export default function Game() {
   const [randomizeColor, setRandomizeColor] = useState(true);
     const router = useRouter();
 
+    const [previousColor, setPreviousColor] = useState("#000000");
+
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -119,7 +121,15 @@ export default function Game() {
 
   const endDrawing = () => {
     setIsDrawing(false);
-    setSelectedColor(colors[Math.floor(Math.random() * colors.length)]);
+      if (randomizeColor) {
+          let newColor;
+          do {
+              newColor = colors[Math.floor(Math.random() * colors.length)];
+          } while (newColor === previousColor); // Ensure it's not the same as the last color
+
+          setSelectedColor(newColor);
+          setPreviousColor(newColor);
+      }
   };
 
   const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
