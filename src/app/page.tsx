@@ -114,8 +114,6 @@ export default function Home() {
 
   const endDrawing = () => {
     setIsDrawing(false);
-    const randomColor = colors[Math.floor(Math.random() * colors.length)];
-    setSelectedColor(randomColor);
   };
 
   const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -179,6 +177,8 @@ export default function Home() {
   };
 
   const generateNewPrompt = () => {
+    clearCanvas();
+    setSelectedColor(colors[Math.floor(Math.random() * colors.length)]);
     setDrawingPrompt(
       drawingPrompts[Math.floor(Math.random() * drawingPrompts.length)]
     );
@@ -203,17 +203,31 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-muted">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-muted p-4">
       <Toaster />
-      <h1 className="text-2xl font-bold mb-4">Draw: {drawingPrompt}</h1>
-       <div className="mb-4">
+      <h1 className="text-2xl font-bold mb-2">Draw: {drawingPrompt}</h1>
+
+      <div className="flex items-center space-x-4 mb-2">
+        <Button variant="secondary" onClick={generateNewPrompt}>
+          New Prompt
+        </Button>
+        <Button variant="secondary" onClick={refillInk} disabled={inkLevel === MAX_INK}>
+          Refill Ink
+        </Button>
+        <Button variant="secondary" onClick={downloadDrawing}>
+          <Download className="mr-2 h-4 w-4" />
+          Download
+        </Button>
+      </div>
+
+      <div className="mb-2 w-full max-w-md">
         <Progress value={inkLevel} />
         <p className="text-sm text-muted-foreground mt-1">Ink Level: {inkLevel.toFixed(1)} / {MAX_INK}</p>
       </div>
 
-      <div className="flex items-center gap-4 mb-4">
+      <div className="flex items-center space-x-2 mb-2">
         <label htmlFor="inkDepletionSpeed" className="text-sm font-medium">
-          Ink Depletion Speed:
+          Ink Speed:
         </label>
         <Input
           type="number"
@@ -223,22 +237,6 @@ export default function Home() {
           className="w-20"
           step="0.001"
         />
-      </div>
-
-      <div className="flex flex-wrap justify-center gap-2 mb-4">
-        {colors.map((color) => (
-          <button
-            key={color}
-            className={`w-8 h-8 rounded-full border-2 ${
-              selectedColor === color ? "border-teal-500" : "border-transparent"
-            }`}
-            style={{ backgroundColor: color }}
-            onClick={() => setSelectedColor(color)}
-          />
-        ))}
-      </div>
-
-      <div className="flex items-center gap-4 mb-4">
         <label htmlFor="brushSize" className="text-sm font-medium">
           Brush Size:
         </label>
@@ -252,6 +250,19 @@ export default function Home() {
         />
       </div>
 
+      <div className="flex flex-wrap justify-center gap-2 mb-2">
+        {colors.map((color) => (
+          <button
+            key={color}
+            className={`w-6 h-6 rounded-full border-2 ${
+              selectedColor === color ? "border-teal-500" : "border-transparent"
+            }`}
+            style={{ backgroundColor: color }}
+            onClick={() => setSelectedColor(color)}
+          />
+        ))}
+      </div>
+
       <canvas
         ref={canvasRef}
         className="border-2 border-gray-400 rounded-md shadow-md cursor-crosshair bg-white"
@@ -261,23 +272,7 @@ export default function Home() {
         onMouseLeave={endDrawing}
       ></canvas>
 
-      <div className="flex justify-center gap-4 mt-4">
-        <Button variant="secondary" onClick={generateNewPrompt}>
-          Generate Prompt
-        </Button>
-         <Button variant="secondary" onClick={refillInk} disabled={inkLevel === MAX_INK}>
-          Refill Ink
-        </Button>
-        <Button variant="secondary" onClick={clearCanvas}>
-          <RefreshCw className="mr-2 h-4 w-4" />
-          Clear Canvas
-        </Button>
-        <Button variant="secondary" onClick={downloadDrawing}>
-          <Download className="mr-2 h-4 w-4" />
-          Download
-        </Button>
-      </div>
-      <form onSubmit={handleGuessSubmit} className="flex mt-4">
+      <form onSubmit={handleGuessSubmit} className="flex mt-2 w-full max-w-md">
         <Input
           type="text"
           placeholder="Guess the drawing!"
@@ -287,7 +282,10 @@ export default function Home() {
         />
         <Button type="submit">Guess!</Button>
       </form>
+      <Button variant="secondary" onClick={clearCanvas}>
+        <RefreshCw className="mr-2 h-4 w-4" />
+        Clear Canvas
+      </Button>
     </div>
   );
 }
-
