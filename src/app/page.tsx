@@ -57,6 +57,7 @@ export default function Home() {
   );
 
   const [guess, setGuess] = useState("");
+  const [inkDepletionSpeed, setInkDepletionSpeed] = useState(0.115);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -136,7 +137,7 @@ export default function Home() {
     lastX.current = x;
     lastY.current = y;
 
-    setInkLevel((prevInk) => Math.max(0, prevInk - 0.115)); // Reduce ink level faster
+    setInkLevel((prevInk) => Math.max(0, prevInk - inkDepletionSpeed)); // Reduce ink level faster
   };
 
 
@@ -209,6 +210,21 @@ export default function Home() {
         <Progress value={inkLevel} />
         <p className="text-sm text-muted-foreground mt-1">Ink Level: {inkLevel.toFixed(1)} / {MAX_INK}</p>
       </div>
+
+      <div className="flex items-center gap-4 mb-4">
+        <label htmlFor="inkDepletionSpeed" className="text-sm font-medium">
+          Ink Depletion Speed:
+        </label>
+        <Input
+          type="number"
+          id="inkDepletionSpeed"
+          value={inkDepletionSpeed}
+          onChange={(e) => setInkDepletionSpeed(parseFloat(e.target.value))}
+          className="w-20"
+          step="0.001"
+        />
+      </div>
+
       <div className="flex flex-wrap justify-center gap-2 mb-4">
         {colors.map((color) => (
           <button
@@ -274,3 +290,4 @@ export default function Home() {
     </div>
   );
 }
+
