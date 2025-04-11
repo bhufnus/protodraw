@@ -59,6 +59,7 @@ export default function Home() {
   const [guess, setGuess] = useState("");
   const [inkDepletionSpeed, setInkDepletionSpeed] = useState(0.115);
   const [devToolsOpen, setDevToolsOpen] = useState(false);
+  const [randomizeColor, setRandomizeColor] = useState(true);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -115,7 +116,9 @@ export default function Home() {
 
   const endDrawing = () => {
     setIsDrawing(false);
-    setSelectedColor(colors[Math.floor(Math.random() * colors.length)]);
+    if (randomizeColor) {
+      setSelectedColor(colors[Math.floor(Math.random() * colors.length)]);
+    }
   };
 
   const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -220,8 +223,9 @@ export default function Home() {
             className="mb-2"
             style={{
               background: "white",
-              "--radix-progress-indicator-transform": `translateX(-${100 - (inkLevel || 0)}%)`,
-              "--radix-progress-indicator-background-color": "linear-gradient(to right, red, yellow, green)"
+              "--radix-progress-indicator-transform": `translateX(-${
+                100 - (inkLevel || 0)
+              }%`,
             }}
           />
         </div>
@@ -284,6 +288,19 @@ export default function Home() {
                 className="w-full"
                 step="0.001"
               />
+            </div>
+
+            <div className="mb-4">
+              <p className="block text-sm font-medium">Modifiers:</p>
+              <label className="inline-flex items-center cursor-pointer">
+                <Input
+                  type="checkbox"
+                  className="form-checkbox h-5 w-5 text-teal-500"
+                  checked={randomizeColor}
+                  onChange={() => setRandomizeColor(!randomizeColor)}
+                />
+                <span className="ml-2 text-gray-700">Randomize Color on New Line</span>
+              </label>
             </div>
 
             <Button variant="secondary" onClick={generateNewPrompt} className="w-full mt-2">
