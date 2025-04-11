@@ -67,7 +67,7 @@ export default function Home() {
     if (!context) return;
 
     // Set canvas dimensions
-    canvas.width = window.innerWidth * 0.8;
+    canvas.width = window.innerWidth * 0.7 * 0.7;
     canvas.height = window.innerHeight * 0.7;
 
     // Set default styles
@@ -114,6 +114,7 @@ export default function Home() {
 
   const endDrawing = () => {
     setIsDrawing(false);
+    setSelectedColor(colors[Math.floor(Math.random() * colors.length)]);
   };
 
   const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -137,7 +138,6 @@ export default function Home() {
 
     setInkLevel((prevInk) => Math.max(0, prevInk - inkDepletionSpeed)); // Reduce ink level faster
   };
-
 
   const clearCanvas = () => {
     const canvas = canvasRef.current;
@@ -203,89 +203,109 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-muted p-4">
+    <div className="flex min-h-screen bg-muted">
       <Toaster />
-      <h1 className="text-2xl font-bold mb-2">Draw: {drawingPrompt}</h1>
 
-      <div className="flex items-center space-x-4 mb-2">
-        <Button variant="secondary" onClick={generateNewPrompt}>
-          New Prompt
+      {/* Left Sidebar - Drawing Tools */}
+      <div className="w-1/4 p-4 flex flex-col bg-secondary rounded-md">
+        <h2 className="text-lg font-bold mb-4">Drawing Tools</h2>
+
+        <div className="mb-4">
+          <p className="text-sm text-muted-foreground mt-1">
+            Ink Level: {inkLevel.toFixed(1)} / {MAX_INK}
+          </p>
+          <Progress value={inkLevel} className="mb-2" />
+          <Button
+            variant="secondary"
+            onClick={refillInk}
+            disabled={inkLevel === MAX_INK}
+            className="w-full"
+          >
+            Refill Ink
+          </Button>
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="inkDepletionSpeed" className="block text-sm font-medium">
+            Ink Speed:
+          </label>
+          <Input
+            type="number"
+            id="inkDepletionSpeed"
+            value={inkDepletionSpeed}
+            onChange={(e) => setInkDepletionSpeed(parseFloat(e.target.value))}
+            className="w-full"
+            step="0.001"
+          />
+        </div>
+
+        <div className="mb-4">
+          <label htmlFor="brushSize" className="block text-sm font-medium">
+            Brush Size:
+          </label>
+          <Slider
+            id="brushSize"
+            defaultValue={[brushSize]}
+            max={20}
+            min={1}
+            step={1}
+            onValueChange={(value) => setBrushSize(value[0])}
+          />
+        </div>
+
+        <div className="mb-4">
+          <p className="block text-sm font-medium">Colors:</p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {colors.map((color) => (
+              <button
+                key={color}
+                className={`w-6 h-6 rounded-full border-2 ${
+                  selectedColor === color ? "border-teal-500" : "border-transparent"
+                }`}
+                style={{ backgroundColor: color }}
+                onClick={() => setSelectedColor(color)}
+              />
+            ))}
+          </div>
+        </div>
+
+        <Button variant="secondary" onClick={clearCanvas} className="w-full">
+          <RefreshCw className="mr-2 h-4 w-4" />
+          Clear Canvas
         </Button>
-        <Button variant="secondary" onClick={refillInk} disabled={inkLevel === MAX_INK}>
-          Refill Ink
-        </Button>
-        <Button variant="secondary" onClick={downloadDrawing}>
+        <Button variant="secondary" onClick={downloadDrawing} className="w-full mt-2">
           <Download className="mr-2 h-4 w-4" />
           Download
         </Button>
       </div>
 
-      <div className="mb-2 w-full max-w-md">
-        <Progress value={inkLevel} />
-        <p className="text-sm text-muted-foreground mt-1">Ink Level: {inkLevel.toFixed(1)} / {MAX_INK}</p>
-      </div>
+      {/* Right Side - Canvas and Chat */}
+      <div className="w-3/4 flex flex-col items-center justify-center p-4">
+        <h1 className="text-2xl font-bold mb-2">Draw: {drawingPrompt}</h1>
 
-      <div className="flex items-center space-x-2 mb-2">
-        <label htmlFor="inkDepletionSpeed" className="text-sm font-medium">
-          Ink Speed:
-        </label>
-        <Input
-          type="number"
-          id="inkDepletionSpeed"
-          value={inkDepletionSpeed}
-          onChange={(e) => setInkDepletionSpeed(parseFloat(e.target.value))}
-          className="w-20"
-          step="0.001"
-        />
-        <label htmlFor="brushSize" className="text-sm font-medium">
-          Brush Size:
-        </label>
-        <Slider
-          id="brushSize"
-          defaultValue={[brushSize]}
-          max={20}
-          min={1}
-          step={1}
-          onValueChange={(value) => setBrushSize(value[0])}
-        />
-      </div>
+        <canvas
+          ref={canvasRef}
+          className="border-2 border-gray-400 rounded-md shadow-md cursor-crosshair bg-white"
+          onMouseDown={startDrawing}
+          onMouseUp={endDrawing}
+          onMouseMove={draw}
+          onMouseLeave={endDrawing}
+        ></canvas>
 
-      <div className="flex flex-wrap justify-center gap-2 mb-2">
-        {colors.map((color) => (
-          <button
-            key={color}
-            className={`w-6 h-6 rounded-full border-2 ${
-              selectedColor === color ? "border-teal-500" : "border-transparent"
-            }`}
-            style={{ backgroundColor: color }}
-            onClick={() => setSelectedColor(color)}
+        <form onSubmit={handleGuessSubmit} className="flex mt-2 w-full max-w-md">
+          <Input
+            type="text"
+            placeholder="Guess the drawing!"
+            value={guess}
+            onChange={(e) => setGuess(e.target.value)}
+            className="mr-2"
           />
-        ))}
+          <Button type="submit">Guess!</Button>
+        </form>
+        <Button variant="secondary" onClick={generateNewPrompt}>
+          New Prompt
+        </Button>
       </div>
-
-      <canvas
-        ref={canvasRef}
-        className="border-2 border-gray-400 rounded-md shadow-md cursor-crosshair bg-white"
-        onMouseDown={startDrawing}
-        onMouseUp={endDrawing}
-        onMouseMove={draw}
-        onMouseLeave={endDrawing}
-      ></canvas>
-
-      <form onSubmit={handleGuessSubmit} className="flex mt-2 w-full max-w-md">
-        <Input
-          type="text"
-          placeholder="Guess the drawing!"
-          value={guess}
-          onChange={(e) => setGuess(e.target.value)}
-          className="mr-2"
-        />
-        <Button type="submit">Guess!</Button>
-      </form>
-      <Button variant="secondary" onClick={clearCanvas}>
-        <RefreshCw className="mr-2 h-4 w-4" />
-        Clear Canvas
-      </Button>
     </div>
   );
 }
