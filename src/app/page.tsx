@@ -6,6 +6,7 @@ import { Slider } from "@/components/ui/slider";
 import { Download, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
+import { Progress } from "@/components/ui/progress";
 
 const colors = [
   "#000000",
@@ -26,6 +27,8 @@ const colors = [
   "#808080",
 ];
 
+const MAX_INK = 100;
+
 export default function Home() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [selectedColor, setSelectedColor] = useState("#000000");
@@ -34,6 +37,7 @@ export default function Home() {
   const { toast } = useToast();
   const lastX = useRef<number>(0);
   const lastY = useRef<number>(0);
+  const [inkLevel, setInkLevel] = useState(MAX_INK);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -66,6 +70,14 @@ export default function Home() {
   }, [selectedColor, brushSize]);
 
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (inkLevel <= 0) {
+      toast({
+        title: "Out of Ink!",
+        description: "Refill your ink to continue drawing.",
+      });
+      return;
+    }
+
     setIsDrawing(true);
     lastX.current = e.nativeEvent.offsetX;
     lastY.current = e.nativeEvent.offsetY;
@@ -88,6 +100,7 @@ export default function Home() {
 
   const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (!isDrawing) return;
+    if (inkLevel <= 0) return;
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -103,6 +116,8 @@ export default function Home() {
 
     lastX.current = x;
     lastY.current = y;
+
+    setInkLevel((prevInk) => Math.max(0, prevInk - 0.1)); // Reduce ink level
   };
 
 
@@ -135,9 +150,21 @@ export default function Home() {
     });
   };
 
+  const refillInk = () => {
+    setInkLevel(MAX_INK);
+    toast({
+      title: "Ink Refilled!",
+      description: "Your ink has been refilled to maximum.",
+    });
+  };
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-muted">
       <Toaster />
+       <div className="mb-4">
+        <Progress value={inkLevel} />
+        <p className="text-sm text-muted-foreground mt-1">Ink Level: {inkLevel.toFixed(1)} / {MAX_INK}</p>
+      </div>
       <div className="flex flex-wrap justify-center gap-2 mb-4">
         {colors.map((color) => (
           <button
@@ -175,6 +202,9 @@ export default function Home() {
       ></canvas>
 
       <div className="flex justify-center gap-4 mt-4">
+         <Button variant="secondary" onClick={refillInk} disabled={inkLevel === MAX_INK}>
+          Refill Ink
+        </Button>
         <Button variant="secondary" onClick={clearCanvas}>
           <RefreshCw className="mr-2 h-4 w-4" />
           Clear Canvas
