@@ -1,4 +1,4 @@
-"use client";
+;"use client";
 
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const colors = [
   "#000000",
@@ -62,6 +62,8 @@ export default function Game() {
   const [devToolsOpen, setDevToolsOpen] = useState(false);
   const [randomizeColor, setRandomizeColor] = useState(true);
     const router = useRouter();
+    const searchParams = useSearchParams();
+    const lobbyCode = searchParams.get('lobby');
 
     const [previousColor, setPreviousColor] = useState("#000000");
 
@@ -337,6 +339,7 @@ export default function Game() {
       {/* Right Side - Canvas and Chat */}
       <div className="w-3/4 flex flex-col items-center justify-center p-4">
         <h1 className="text-2xl font-bold mb-2">Draw: {drawingPrompt}</h1>
+        <h2>Lobby: {lobbyCode}</h2>
 
         <canvas
           ref={canvasRef}
