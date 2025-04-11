@@ -82,6 +82,8 @@ export default function Home() {
 
   const endDrawing = () => {
     setIsDrawing(false);
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    setSelectedColor(randomColor);
   };
 
   const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -96,11 +98,7 @@ export default function Home() {
     const x = e.nativeEvent.offsetX;
     const y = e.nativeEvent.offsetY;
 
-    // Draw a line from the last position to the current position,
-    // but in the opposite direction of the cursor's movement.
-    context.beginPath();
-    context.moveTo(lastX.current, lastY.current);
-    context.lineTo(2 * lastX.current - x, 2 * lastY.current - y);
+    context.lineTo(x, y);
     context.stroke();
 
     lastX.current = x;
@@ -189,4 +187,3 @@ export default function Home() {
     </div>
   );
 }
-
