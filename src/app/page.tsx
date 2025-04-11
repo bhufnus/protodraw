@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { Download, RefreshCw } from "lucide-react";
+import { Download, RefreshCw, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { Progress } from "@/components/ui/progress";
@@ -58,6 +58,7 @@ export default function Home() {
 
   const [guess, setGuess] = useState("");
   const [inkDepletionSpeed, setInkDepletionSpeed] = useState(0.115);
+  const [devToolsOpen, setDevToolsOpen] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -215,28 +216,6 @@ export default function Home() {
             Ink Level: {inkLevel.toFixed(1)} / {MAX_INK}
           </p>
           <Progress value={inkLevel} className="mb-2" />
-          <Button
-            variant="secondary"
-            onClick={refillInk}
-            disabled={inkLevel === MAX_INK}
-            className="w-full"
-          >
-            Refill Ink
-          </Button>
-        </div>
-
-        <div className="mb-4">
-          <label htmlFor="inkDepletionSpeed" className="block text-sm font-medium">
-            Ink Speed:
-          </label>
-          <Input
-            type="number"
-            id="inkDepletionSpeed"
-            value={inkDepletionSpeed}
-            onChange={(e) => setInkDepletionSpeed(parseFloat(e.target.value))}
-            className="w-full"
-            step="0.001"
-          />
         </div>
 
         <div className="mb-4">
@@ -269,7 +248,43 @@ export default function Home() {
           </div>
         </div>
 
-        <Button variant="secondary" onClick={clearCanvas} className="w-full">
+        <Button onClick={() => setDevToolsOpen(!devToolsOpen)} className="w-full">
+          <Settings className="mr-2 h-4 w-4" />
+          Dev Tools
+        </Button>
+
+        {devToolsOpen && (
+          <>
+            <Button
+              variant="secondary"
+              onClick={refillInk}
+              disabled={inkLevel === MAX_INK}
+              className="w-full mt-2"
+            >
+              Refill Ink
+            </Button>
+
+            <div className="mb-4">
+              <label htmlFor="inkDepletionSpeed" className="block text-sm font-medium">
+                Ink Speed:
+              </label>
+              <Input
+                type="number"
+                id="inkDepletionSpeed"
+                value={inkDepletionSpeed}
+                onChange={(e) => setInkDepletionSpeed(parseFloat(e.target.value))}
+                className="w-full"
+                step="0.001"
+              />
+            </div>
+
+            <Button variant="secondary" onClick={generateNewPrompt} className="w-full mt-2">
+              New Prompt
+            </Button>
+          </>
+        )}
+
+        <Button variant="secondary" onClick={clearCanvas} className="w-full mt-2">
           <RefreshCw className="mr-2 h-4 w-4" />
           Clear Canvas
         </Button>
@@ -302,9 +317,6 @@ export default function Home() {
           />
           <Button type="submit">Guess!</Button>
         </form>
-        <Button variant="secondary" onClick={generateNewPrompt}>
-          New Prompt
-        </Button>
       </div>
     </div>
   );
