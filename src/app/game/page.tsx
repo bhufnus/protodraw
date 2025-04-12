@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Download, RefreshCw, Settings, Home } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -9,6 +9,13 @@ import { Toaster } from "@/components/ui/toaster";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { useRouter, useSearchParams } from "next/navigation";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const colors = [
   "#000000",
@@ -70,12 +77,14 @@ export default function Game() {
   const [randomizeColor, setRandomizeColor] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const lobbyCode = searchParams.get('lobby');
-  const nickname = searchParams.get('nickname') || 'Guest';
+  const lobbyCode = searchParams.get("lobby");
+  const nickname = searchParams.get("nickname") || "Guest";
 
   const [previousColor, setPreviousColor] = useState("#000000");
   const [connectedUsers, setConnectedUsers] = useState([nickname]);
-
+  const [isInkIntermittent, setIsInkIntermittent] = useState(false);
+  const [isInkOn, setIsInkOn] = useState(true);
+  const inkIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -113,6 +122,25 @@ export default function Game() {
       drawingPrompts[Math.floor(Math.random() * drawingPrompts.length)]
     );
   }, []);
+
+  useEffect(() => {
+    if (isDrawing && isInkIntermittent) {
+      inkIntervalRef.current = setInterval(() => {
+        setIsInkOn((prev) => !prev);
+      }, 50);
+    } else {
+      if (inkIntervalRef.current) {
+        clearInterval(inkIntervalRef.current);
+        inkIntervalRef.current = null;
+      }
+      setIsInkOn(true);
+    }
+    return () => {
+      if (inkIntervalRef.current) {
+        clearInterval(inkIntervalRef.current);
+      }
+    };
+  }, [isDrawing, isInkIntermittent]);
 
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (inkLevel <= 0) {
@@ -163,8 +191,10 @@ export default function Game() {
     const x = e.nativeEvent.offsetX;
     const y = e.nativeEvent.offsetY;
 
-    context.lineTo(x, y);
-    context.stroke();
+    if (isInkOn) {
+      context.lineTo(x, y);
+      context.stroke();
+    }
 
     lastX.current = x;
     lastY.current = y;
@@ -239,12 +269,26 @@ export default function Game() {
     <div className="flex min-h-screen bg-muted">
       <Toaster />
 
+      {/* Lobby Code Display */}
+      <div className="absolute bottom-4 left-4">
+        <h2 className="text-lg font-bold text-red-800">{lobbyCode}</h2>
+      </div>
+
       {/* Left Sidebar - Drawing Tools */}
-      <div className="w-1/4 p-4 flex flex-col bg-secondary rounded-md" style={{ backgroundColor: 'hsl(var(--secondary))' }}>
-        <Button variant="secondary" onClick={() => router.push('/')} className="w-full mt-2">
+
+      <div
+        className="w-1/4 p-4 flex flex-col bg-secondary rounded-md"
+        style={{ backgroundColor: "hsl(var(--secondary))" }}
+      >
+        <Button
+          variant="outline"
+          onClick={() => router.push("/")}
+          className="w-full mt-2"
+        >
           <Home className="mr-2 h-4 w-4" />
           Home
         </Button>
+
         <h2 className="text-lg font-bold mb-4">Drawing Tools</h2>
 
         <div className="mb-4">
@@ -255,8 +299,9 @@ export default function Game() {
             value={inkLevel}
             className="mb-2"
             style={{
-              background: "white",
-              "--radix-progress-indicator-transform": `translateX(-${100 - (inkLevel || 0)}%)`,
+              "--radix-progress-indicator-transform": `translateX(-${
+                100 - (inkLevel || 0)
+              }%)`,
             }}
           />
         </div>
@@ -281,8 +326,11 @@ export default function Game() {
             {colors.map((color) => (
               <button
                 key={color}
-                className={`w-6 h-6 rounded-full border-2 ${selectedColor === color ? "border-teal-500" : "border-transparent"
-                  }`}
+                className={`w-6 h-6 rounded-full border-2 ${
+                  selectedColor === color
+                    ? "border-teal-500"
+                    : "border-transparent"
+                }`}
                 style={{ backgroundColor: color }}
                 onClick={() => setSelectedColor(color)}
               />
@@ -290,7 +338,10 @@ export default function Game() {
           </div>
         </div>
 
-        <Button onClick={() => setDevToolsOpen(!devToolsOpen)} className="w-full">
+        <Button
+          onClick={() => setDevToolsOpen(!devToolsOpen)}
+          className="w-full"
+        >
           <Settings className="mr-2 h-4 w-4" />
           Dev Tools
         </Button>
@@ -307,14 +358,19 @@ export default function Game() {
             </Button>
 
             <div className="mb-4">
-              <label htmlFor="inkDepletionSpeed" className="block text-sm font-medium">
+              <label
+                htmlFor="inkDepletionSpeed"
+                className="block text-sm font-medium"
+              >
                 Ink Speed:
               </label>
               <Input
                 type="number"
                 id="inkDepletionSpeed"
                 value={inkDepletionSpeed}
-                onChange={(e) => setInkDepletionSpeed(parseFloat(e.target.value))}
+                onChange={(e) =>
+                  setInkDepletionSpeed(parseFloat(e.target.value))
+                }
                 className="w-full"
                 step="0.001"
               />
@@ -329,21 +385,48 @@ export default function Game() {
                   checked={randomizeColor}
                   onChange={() => setRandomizeColor(!randomizeColor)}
                 />
-                <span className="ml-2 text-gray-700">Randomize Color on New Line</span>
+                <span className="ml-2 text-gray-700">
+                  Randomize Color on New Line
+                </span>
+              </label>
+            </div>
+            <div className="mb-4">
+              <label className="inline-flex items-center cursor-pointer">
+                <Input
+                  type="checkbox"
+                  className="form-checkbox h-5 w-5 text-teal-500"
+                  checked={isInkIntermittent}
+                  onChange={() => setIsInkIntermittent(!isInkIntermittent)}
+                />
+                <span className="ml-2 text-gray-700">
+                  Intermittent Ink
+                </span>
               </label>
             </div>
 
-            <Button variant="secondary" onClick={generateNewPrompt} className="w-full mt-2">
+            <Button
+              variant="secondary"
+              onClick={generateNewPrompt}
+              className="w-full mt-2"
+            >
               New Prompt
             </Button>
           </>
         )}
 
-        <Button variant="secondary" onClick={clearCanvas} className="w-full mt-2">
+        <Button
+          variant="secondary"
+          onClick={clearCanvas}
+          className="w-full mt-2"
+        >
           <RefreshCw className="mr-2 h-4 w-4" />
           Clear Canvas
         </Button>
-        <Button variant="secondary" onClick={downloadDrawing} className="w-full mt-2">
+        <Button
+          variant="secondary"
+          onClick={downloadDrawing}
+          className="w-full mt-2"
+        >
           <Download className="mr-2 h-4 w-4" />
           Download
         </Button>
@@ -351,17 +434,20 @@ export default function Game() {
 
       {/* Right Side - Canvas and Chat */}
       <div className="w-3/4 flex flex-col items-center justify-center p-4">
-        <h1 className="text-2xl font-bold mb-2">Draw: {drawingPrompt}</h1>
-        <h2>Lobby: {lobbyCode}</h2>
-        <h3>Nickname: {nickname}</h3>
-        <div>
-          Connected Users:
-          <ul>
-            {connectedUsers?.map((user, index) => (
-              <li key={index}>{user}</li>
-            ))}
-          </ul>
+        <div className="absolute top-4 right-4">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">Connected Users</Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-56">
+              {connectedUsers?.map((user, index) => (
+                <DropdownMenuItem key={index}>{user}</DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
+        <h3>Nickname: {nickname}</h3>
+        <h1 className="text-2xl font-bold mb-2">Draw: {drawingPrompt}</h1>
 
         <canvas
           ref={canvasRef}
@@ -372,7 +458,10 @@ export default function Game() {
           onMouseLeave={endDrawing}
         ></canvas>
 
-        <form onSubmit={handleGuessSubmit} className="flex mt-2 w-full max-w-md">
+        <form
+          onSubmit={handleGuessSubmit}
+          className="flex mt-2 w-full max-w-md"
+        >
           <Input
             type="text"
             placeholder="Guess the drawing!"
@@ -386,6 +475,3 @@ export default function Game() {
     </div>
   );
 }
-
-
-
