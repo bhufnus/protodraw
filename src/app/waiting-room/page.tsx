@@ -9,19 +9,20 @@ export default function WaitingRoom() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const lobbyCode = searchParams.get('lobby');
+  const nickname = searchParams.get('nickname') || 'Guest';
   const [connectedUsers, setConnectedUsers] = useState<string[]>([]);
 
   useEffect(() => {
     // Simulate adding the creator to the list of connected users
-    setConnectedUsers(["Creator"]);
-  }, []);
+    setConnectedUsers([nickname]);
+  }, [nickname]);
 
   const handleCancel = () => {
     router.push('/');
   };
 
   const handleStartGame = () => {
-    router.push(`/game?lobby=${lobbyCode}&nickname=Creator`);
+    router.push(`/game?lobby=${lobbyCode}&nickname=${nickname}`);
   };
 
   return (
@@ -48,3 +49,4 @@ export default function WaitingRoom() {
     </div>
   );
 }
+
