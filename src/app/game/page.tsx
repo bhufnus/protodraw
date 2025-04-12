@@ -85,6 +85,7 @@ export default function Game() {
   const [isInkIntermittent, setIsInkIntermittent] = useState(false);
   const [isInkOn, setIsInkOn] = useState(true);
   const inkIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const [isInkReductionOn, setIsInkReductionOn] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -199,10 +200,12 @@ export default function Game() {
       context.moveTo(x, y);
     }
 
-    lastX.current = x;
-    lastY.current = y;
+    let inkReduction = inkDepletionSpeed;
+    if (isInkReductionOn) {
+      inkReduction += (MAX_INK * 0.2) / MAX_INK; // Reduce by 20%
+    }
 
-    setInkLevel((prevInk) => Math.max(0, prevInk - inkDepletionSpeed)); // Reduce ink level faster
+    setInkLevel((prevInk) => Math.max(0, prevInk - inkReduction));
   };
 
   const clearCanvas = () => {
@@ -403,6 +406,20 @@ export default function Game() {
                 />
                 <span className="ml-2 text-gray-700">
                   Intermittent Ink
+                </span>
+              </label>
+            </div>
+
+            <div className="mb-4">
+              <label className="inline-flex items-center cursor-pointer">
+                <Input
+                  type="checkbox"
+                  className="form-checkbox h-5 w-5 text-teal-500"
+                  checked={isInkReductionOn}
+                  onChange={() => setIsInkReductionOn(!isInkReductionOn)}
+                />
+                <span className="ml-2 text-gray-700">
+                  Ink Reduction
                 </span>
               </label>
             </div>
