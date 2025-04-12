@@ -50,7 +50,8 @@ export default function Home() {
               className="w-full max-w-xs"
             />
             <Button
-              className="bg-primary text-primary-foreground rounded-md px-4 py-2 hover:bg-primary/80 disabled:bg-primary/50 flex items-center justify-center"
+              className="rounded-md px-4 py-2 hover:bg-primary/80 disabled:bg-primary/50 flex items-center justify-center"
+              style={{backgroundColor: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))'}}
               onClick={handleCreateNewGame}
               disabled={isLoading || createNickname.length === 0}
             >
@@ -85,7 +86,8 @@ export default function Home() {
               className="w-full max-w-xs"
             />
             <Button
-              className="bg-secondary text-secondary-foreground rounded-md px-4 py-2 hover:bg-secondary/80 disabled:bg-secondary/50"
+              className="rounded-md px-4 py-2 hover:bg-secondary/80 disabled:bg-secondary/50"
+              style={{backgroundColor: 'hsl(var(--secondary))', color: 'hsl(var(--secondary-foreground))'}}
               onClick={handleJoinGame}
               disabled={isLoading || joinCode.length !== 7 || nickname.length === 0}
             >

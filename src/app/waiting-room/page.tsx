@@ -44,7 +44,7 @@ export default function WaitingRoom() {
           <Home className="mr-2 h-4 w-4" />
           Cancel
         </Button>
-        <Button onClick={handleStartGame}>Start Game</Button>
+        <Button style={{backgroundColor: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))'}} onClick={handleStartGame}>Start Game</Button>
       </div>
     </div>
   );

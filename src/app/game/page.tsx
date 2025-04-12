@@ -226,7 +226,7 @@ export default function Game() {
       <Toaster />
 
       {/* Left Sidebar - Drawing Tools */}
-      <div className="w-1/4 p-4 flex flex-col bg-secondary rounded-md">
+      <div className="w-1/4 p-4 flex flex-col bg-secondary rounded-md" style={{backgroundColor: 'hsl(var(--secondary))'}}>
         <Button variant="secondary" onClick={() => router.push('/')} className="w-full mt-2">
           <Home className="mr-2 h-4 w-4" />
           Home
@@ -372,3 +372,4 @@ export default function Game() {
     </div>
   );
 }
+
