@@ -63,11 +63,6 @@ export default function Home() {
                 "Create New Game"
               )}
             </Button>
-            {(createNickname.length === 0) && (
-              <p className="text-sm text-muted-foreground">
-                Nickname is required.
-              </p>
-            )}
           </div>
         </div>
 
@@ -103,19 +98,10 @@ export default function Home() {
                 "Join Game"
               )}
             </Button>
-            {(joinCode.length !== 7) && (
-              <p className="text-sm text-muted-foreground">
-                Lobby code must be 7 characters long.
-              </p>
-            )}
-            {(nickname.length === 0) && (
-              <p className="text-sm text-muted-foreground">
-                Nickname is required.
-              </p>
-            )}
           </div>
         </div>
       </div>
     </div>
   );
 }
+
