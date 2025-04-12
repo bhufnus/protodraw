@@ -30,16 +30,26 @@ const colors = [
 ];
 
 const drawingPrompts = [
-  "Cat",
-  "Cityscape",
-  "Forest",
-  "Explosion",
-  "Portrait",
-  "Mountain",
-  "River",
+  "Car",
   "House",
   "Tree",
-  "Car",
+  "Sun",
+  "Moon",
+  "Star",
+  "Cloud",
+  "Flower",
+  "Dog",
+  "Cat",
+  "Fish",
+  "Bird",
+  "Book",
+  "Chair",
+  "Table",
+  "Phone",
+  "Computer",
+  "Shoes",
+  "Hat",
+  "Ball",
 ];
 
 const MAX_INK = 100;
@@ -53,10 +63,7 @@ export default function Game() {
   const lastX = useRef<number>(0);
   const lastY = useRef<number>(0);
   const [inkLevel, setInkLevel] = useState(MAX_INK);
-  const [drawingPrompt, setDrawingPrompt] = useState(
-    drawingPrompts[Math.floor(Math.random() * drawingPrompts.length)]
-  );
-
+  const [drawingPrompt, setDrawingPrompt] = useState("");
   const [guess, setGuess] = useState("");
   const [inkDepletionSpeed, setInkDepletionSpeed] = useState(0.115);
   const [devToolsOpen, setDevToolsOpen] = useState(false);
@@ -99,6 +106,13 @@ export default function Game() {
     context.strokeStyle = selectedColor;
     context.lineWidth = brushSize;
   }, [selectedColor, brushSize]);
+
+  useEffect(() => {
+    // Only set the drawing prompt on the client side
+    setDrawingPrompt(
+      drawingPrompts[Math.floor(Math.random() * drawingPrompts.length)]
+    );
+  }, []);
 
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (inkLevel <= 0) {
@@ -226,7 +240,7 @@ export default function Game() {
       <Toaster />
 
       {/* Left Sidebar - Drawing Tools */}
-      <div className="w-1/4 p-4 flex flex-col bg-secondary rounded-md" style={{backgroundColor: 'hsl(var(--secondary))'}}>
+      <div className="w-1/4 p-4 flex flex-col bg-secondary rounded-md" style={{ backgroundColor: 'hsl(var(--secondary))' }}>
         <Button variant="secondary" onClick={() => router.push('/')} className="w-full mt-2">
           <Home className="mr-2 h-4 w-4" />
           Home
@@ -372,4 +386,5 @@ export default function Game() {
     </div>
   );
 }
+
 
