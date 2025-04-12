@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Home } from "lucide-react";
+import { Home, UserPlus } from "lucide-react";
 
 export default function WaitingRoom() {
   const router = useRouter();
@@ -11,6 +11,7 @@ export default function WaitingRoom() {
   const lobbyCode = searchParams.get('lobby');
   const nickname = searchParams.get('nickname') || 'Guest';
   const [connectedUsers, setConnectedUsers] = useState<string[]>([]);
+  const [devToolsOpen, setDevToolsOpen] = useState(false);
 
   useEffect(() => {
     // Simulate adding the creator to the list of connected users
@@ -24,6 +25,17 @@ export default function WaitingRoom() {
   const handleStartGame = () => {
     router.push(`/game?lobby=${lobbyCode}&nickname=${nickname}`);
   };
+
+    const handleAddCpu = () => {
+        const cpuNickname = `CPU-${Math.floor(Math.random() * 1000)}`;
+        setConnectedUsers(prevUsers => [...prevUsers, cpuNickname]);
+    };
+
+    const handlePlayAsCpu = () => {
+        const cpuNickname = `CPU-${Math.floor(Math.random() * 1000)}`;
+        router.push(`/game?lobby=${lobbyCode}&nickname=${cpuNickname}`);
+    };
+
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-muted p-4">
@@ -46,6 +58,26 @@ export default function WaitingRoom() {
         </Button>
         <Button style={{backgroundColor: 'hsl(var(--primary))', color: 'hsl(var(--primary-foreground))'}} onClick={handleStartGame}>Start Game</Button>
       </div>
+
+            <Button
+              onClick={() => setDevToolsOpen(!devToolsOpen)}
+              className="w-full"
+            >
+              Dev Tools
+            </Button>
+
+        {devToolsOpen && (
+            <>
+        <Button variant="secondary" onClick={handleAddCpu}>
+            <UserPlus className="mr-2 h-4 w-4" />
+            Add CPU
+        </Button>
+
+            <Button variant="secondary" onClick={handlePlayAsCpu}>
+              Play as CPU
+            </Button>
+            </>
+        )}
     </div>
   );
 }
