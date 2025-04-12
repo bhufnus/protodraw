@@ -194,6 +194,9 @@ export default function Game() {
     if (isInkOn) {
       context.lineTo(x, y);
       context.stroke();
+    } else {
+      context.beginPath(); // Start a new path to prevent connecting lines
+      context.moveTo(x, y);
     }
 
     lastX.current = x;
