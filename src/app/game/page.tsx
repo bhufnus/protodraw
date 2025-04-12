@@ -67,7 +67,7 @@ export default function Game() {
   const [guess, setGuess] = useState("");
   const [inkDepletionSpeed, setInkDepletionSpeed] = useState(0.115);
   const [devToolsOpen, setDevToolsOpen] = useState(false);
-  const [randomizeColor, setRandomizeColor] = useState(true);
+  const [randomizeColor, setRandomizeColor] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const lobbyCode = searchParams.get('lobby');
@@ -386,5 +386,6 @@ export default function Game() {
     </div>
   );
 }
+
 
 
