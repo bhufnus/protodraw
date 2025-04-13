@@ -102,6 +102,11 @@ body {
   100% { transform: translateX(100px); }
 }
 
+@keyframes drift-left {
+  0% { transform: translateX(100px); }
+  100% { transform: translateX(0); }
+}
+
 @keyframes spin-clockwise {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
@@ -115,5 +120,6 @@ body {
   0% { transform: translateY(0) rotate(0deg); }
   100% { transform: translateY(200px) rotate(360deg); }
 }
+
 
 

@@ -34,6 +34,9 @@ export default function Home() {
 
       let animation = '';
       switch (iconType) {
+        case 0: // Brush - Horizontal drift
+          animation = 'drift-left 10s linear infinite';
+          break;
         case 2: // Circle - Horizontal drift
           animation = 'drift 10s linear infinite';
           break;
