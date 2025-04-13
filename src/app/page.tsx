@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Brush, Circle, Square, Triangle, Palette } from 'lucide-react'; // Import icons
 
 function generateGameCode(length: number): string {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -34,10 +35,56 @@ export default function Home() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-muted p-4">
-      <h1 className="text-4xl font-bold mb-8">Drawing Roguelike</h1>
+    <div className="relative flex min-h-screen flex-col items-center justify-center bg-muted p-4 overflow-hidden">
+      {/* Background Icons */}
+      <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+        {[...Array(20)].map((_, index) => {
+          const size = Math.floor(Math.random() * 30) + 20; // Random size between 20 and 50
+          const x = Math.floor(Math.random() * 100); // Random position
+          const y = Math.floor(Math.random() * 100);
+          const rotation = Math.floor(Math.random() * 360); // Random rotation
 
-      <div className="flex w-full max-w-2xl space-x-8">
+          const iconType = Math.floor(Math.random() * 4); // Randomly select icon
+          let icon;
+
+          switch (iconType) {
+            case 0:
+              icon = <Brush className="text-red-500" />;
+              break;
+            case 1:
+              icon = <Palette className="text-green-500" />;
+              break;
+            case 2:
+              icon = <Circle className="text-blue-500" />;
+              break;
+            default:
+              icon = <Square className="text-yellow-500" />;
+              break;
+          }
+
+
+          return (
+            <span
+              key={index}
+              style={{
+                position: 'absolute',
+                left: `${x}%`,
+                top: `${y}%`,
+                fontSize: `${size}px`,
+                transform: `rotate(${rotation}deg)`,
+                opacity: 0.3,
+              }}
+            >
+              {icon}
+            </span>
+          );
+        })}
+      </div>
+
+
+      <h1 className="text-4xl font-bold mb-8 relative">Drawing Roguelike</h1>
+
+      <div className="flex w-full max-w-2xl space-x-8 relative">
         {/* Create New Game Section */}
         <div className="w-1/2">
           <h2 className="text-2xl font-semibold mb-4">Create New Game</h2>
@@ -106,4 +153,3 @@ export default function Home() {
     </div>
   );
 }
-
