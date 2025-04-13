@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -22,6 +22,31 @@ export default function Home() {
   const [joinCode, setJoinCode] = useState('');
   const [nickname, setNickname] = useState('');
   const [createNickname, setCreateNickname] = useState('');
+  const [backgroundIcons, setBackgroundIcons] = useState([]);
+
+  useEffect(() => {
+    const generateIcons = () => {
+      const newIcons = [...Array(20)].map((_, index) => {
+        const size = Math.floor(Math.random() * 30) + 20; // Random size between 20 and 50
+        const x = Math.floor(Math.random() * 100); // Random position
+        const y = Math.floor(Math.random() * 100);
+        const rotation = Math.floor(Math.random() * 360); // Random rotation
+        const iconType = Math.floor(Math.random() * 4); // Randomly select icon
+
+        return {
+          key: index,
+          size,
+          x,
+          y,
+          rotation,
+          iconType,
+        };
+      });
+      setBackgroundIcons(newIcons);
+    };
+
+    generateIcons();
+  }, []);
 
   const handleCreateNewGame = () => {
     setIsLoading(true);
@@ -38,44 +63,37 @@ export default function Home() {
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-muted p-4 overflow-hidden">
       {/* Background Icons */}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-        {[...Array(20)].map((_, index) => {
-          const size = Math.floor(Math.random() * 30) + 20; // Random size between 20 and 50
-          const x = Math.floor(Math.random() * 100); // Random position
-          const y = Math.floor(Math.random() * 100);
-          const rotation = Math.floor(Math.random() * 360); // Random rotation
+        {backgroundIcons.map((icon) => {
+          let iconComponent;
 
-          const iconType = Math.floor(Math.random() * 4); // Randomly select icon
-          let icon;
-
-          switch (iconType) {
+          switch (icon.iconType) {
             case 0:
-              icon = <Brush className="text-red-500" />;
+              iconComponent = <Brush className="text-red-500" />;
               break;
             case 1:
-              icon = <Palette className="text-green-500" />;
+              iconComponent = <Palette className="text-green-500" />;
               break;
             case 2:
-              icon = <Circle className="text-blue-500" />;
+              iconComponent = <Circle className="text-blue-500" />;
               break;
             default:
-              icon = <Square className="text-yellow-500" />;
+              iconComponent = <Square className="text-yellow-500" />;
               break;
           }
 
-
           return (
             <span
-              key={index}
+              key={icon.key}
               style={{
                 position: 'absolute',
-                left: `${x}%`,
-                top: `${y}%`,
-                fontSize: `${size}px`,
-                transform: `rotate(${rotation}deg)`,
+                left: `${icon.x}%`,
+                top: `${icon.y}%`,
+                fontSize: `${icon.size}px`,
+                transform: `rotate(${icon.rotation}deg)`,
                 opacity: 0.3,
               }}
             >
-              {icon}
+              {iconComponent}
             </span>
           );
         })}
