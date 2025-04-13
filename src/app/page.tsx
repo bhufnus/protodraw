@@ -37,6 +37,9 @@ export default function Home() {
         case 2: // Circle - Horizontal drift
           animation = 'drift 10s linear infinite';
           break;
+        case 1: // Palette - Spin
+            animation = Math.random() < 0.5 ? 'spin-clockwise 15s linear infinite' : 'spin-counterclockwise 15s linear infinite';
+            break;
         default:
           animation = '';
           break;

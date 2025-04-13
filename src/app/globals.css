@@ -93,6 +93,7 @@ body {
     @apply bg-background text-foreground;
     /*background: linear-gradient(to bottom, #f0f0f0, #e0e0e0);*/
     background: linear-gradient(to bottom, #4a148c, #2a0845); /* Darker purple gradient */
+    font-family: var(--font-poppins);
   }
 }
 
@@ -100,4 +101,15 @@ body {
   0% { transform: translateX(0); }
   100% { transform: translateX(100px); }
 }
+
+@keyframes spin-clockwise {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes spin-counterclockwise {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(-360deg); }
+}
+
 
