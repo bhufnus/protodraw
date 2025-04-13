@@ -269,22 +269,29 @@ export default function Game() {
 
     const handleGuessSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (guess.trim().toLowerCase() === drawingPrompt.toLowerCase()) {
+        const trimmedGuess = guess.trim();
+        if (trimmedGuess === "") {
             toast({
-                title: "Correct!",
-                description: "You guessed the prompt!",
+                title: "Empty Guess",
+                description: "Please enter a guess.",
             });
-            generateNewPrompt();
-            clearCanvas();
-            setChatLog(prevChatLog => [...prevChatLog, `${nickname} guessed the prompt!`]);
         } else {
-            setChatLog(prevChatLog => [...prevChatLog, `${nickname} guessed ${guess}`]);
-            toast({
-                title: "Incorrect",
-                description: "Try again!",
-            });
-        }
-        setGuess("");
+            if (trimmedGuess.toUpperCase() === drawingPrompt.toUpperCase()) {
+                toast({
+                    title: "Correct!",
+                    description: "You guessed the prompt!",
+                });
+                generateNewPrompt();
+                setChatLog((prevChatLog) => [...prevChatLog, `${nickname} guessed the prompt!`]);
+            } else {
+                setChatLog((prevChatLog) => [...prevChatLog, `${nickname} guessed ${trimmedGuess.toUpperCase()}`]);
+                toast({
+                    title: "Incorrect",
+                    description: "Try again!",
+                });
+            }
+            setGuess("");
+        };
     };
 
   return (
@@ -319,6 +326,7 @@ export default function Game() {
           </p>
           <Progress
             value={inkLevel}
+
             className="mb-2"
             style={{
               "--radix-progress-indicator-transform": `translateX(-${
@@ -498,6 +506,15 @@ export default function Game() {
         <h3>Nickname: {nickname}</h3>
         <h1 className="text-2xl font-bold mb-2">Draw: {drawingPrompt}</h1>
 
+
+        <canvas
+          ref={canvasRef}
+          className="border-2 border-gray-400 rounded-md shadow-md cursor-crosshair bg-white mt-4"
+                    onMouseDown={startDrawing}
+          onMouseUp={endDrawing}
+          onMouseMove={draw}
+          onMouseLeave={endDrawing}
+        ></canvas>
         <form
           onSubmit={handleGuessSubmit}
           className="flex mt-2 w-full max-w-md"
@@ -516,22 +533,11 @@ export default function Game() {
           />
           <Button type="submit">Guess!</Button>
         </form>
-
-          {/* Chat Log */}
           <div className="h-48 overflow-y-auto p-2 border rounded mt-2 w-full max-w-md">
               {chatLog.map((message, index) => (
                   <div key={index}>{message}</div>
               ))}
           </div>
-
-        <canvas
-          ref={canvasRef}
-          className="border-2 border-gray-400 rounded-md shadow-md cursor-crosshair bg-white mt-4"
-          onMouseDown={startDrawing}
-          onMouseUp={endDrawing}
-          onMouseMove={draw}
-          onMouseLeave={endDrawing}
-        ></canvas>
       </div>
     </div>
   );
