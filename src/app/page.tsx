@@ -40,6 +40,9 @@ export default function Home() {
         case 1: // Palette - Spin
             animation = Math.random() < 0.5 ? 'spin-clockwise 15s linear infinite' : 'spin-counterclockwise 15s linear infinite';
             break;
+          case 3: // Square - Falling
+            animation = 'fall 15s linear infinite';
+            break;
         default:
           animation = '';
           break;
@@ -202,3 +205,4 @@ export default function Home() {
     </div>
   );
 }
+
