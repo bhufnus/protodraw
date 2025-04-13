@@ -95,3 +95,9 @@ body {
     background: linear-gradient(to bottom, #4a148c, #2a0845); /* Darker purple gradient */
   }
 }
+
+@keyframes drift {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(100px); }
+}
+

@@ -32,6 +32,17 @@ export default function Home() {
       const rotation = Math.floor(Math.random() * 360); // Random rotation
       const iconType = Math.floor(Math.random() * 4); // Randomly select icon
 
+      let animation = '';
+      switch (iconType) {
+        case 2: // Circle - Horizontal drift
+          animation = 'drift 10s linear infinite';
+          break;
+        default:
+          animation = '';
+          break;
+      }
+
+
       return {
         key: index,
         size,
@@ -39,6 +50,7 @@ export default function Home() {
         y,
         rotation,
         iconType,
+        animation,
       };
     });
     setBackgroundIcons(newIcons);
@@ -106,6 +118,7 @@ export default function Home() {
                 fontSize: `${icon.size}px`,
                 transform: `rotate(${icon.rotation}deg)`,
                 opacity: 0.3,
+                animation: icon.animation,
               }}
             >
               {iconComponent}
