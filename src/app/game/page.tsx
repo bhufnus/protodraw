@@ -81,8 +81,8 @@ export default function Game() {
   const [isDrawer, setIsDrawer] = useState(true);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const lobbyCode = searchParams.get('lobby') || "";
-  const nickname = searchParams.get('nickname') || "Guest";
+  const lobbyCode = searchParams.get("lobby") || "";
+  const nickname = searchParams.get("nickname") || "Guest";
 
   const [previousColor, setPreviousColor] = useState("#000000");
   const [connectedUsers, setConnectedUsers] = useState([nickname]);
@@ -91,6 +91,8 @@ export default function Game() {
   const inkIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const [isInkReductionOn, setIsInkReductionOn] = useState(false);
   const [mirrorMode, setMirrorMode] = useState(false);
+  const [promptOptions, setPromptOptions] = useState<string[]>([]);
+  const [promptSelected, setPromptSelected] = useState(false);
   const [canvasWidth, setCanvasWidth] = useState(0);
 
   useEffect(() => {
@@ -130,11 +132,22 @@ export default function Game() {
   }, [selectedColor, brushSize]);
 
   useEffect(() => {
-    // Only set the drawing prompt on the client side
-    setDrawingPrompt(
-      drawingPrompts[Math.floor(Math.random() * drawingPrompts.length)]
-    );
-  }, []);
+    const generatePromptOptions = () => {
+      const options: string[] = [];
+      while (options.length < 3) {
+        const randomPrompt =
+          drawingPrompts[Math.floor(Math.random() * drawingPrompts.length)];
+        if (!options.includes(randomPrompt)) {
+          options.push(randomPrompt);
+        }
+      }
+      setPromptOptions(options);
+      setPromptSelected(false);
+    };
+    if (isDrawer) {
+      generatePromptOptions();
+    }
+  }, [isDrawer]);
 
   useEffect(() => {
     if (isDrawing && isInkIntermittent) {
@@ -272,11 +285,7 @@ export default function Game() {
   };
 
   const generateNewPrompt = () => {
-    clearCanvas();
     setSelectedColor(colors[Math.floor(Math.random() * colors.length)]);
-    setDrawingPrompt(
-      drawingPrompts[Math.floor(Math.random() * drawingPrompts.length)]
-    );
   };
 
   const handleGuessSubmit = (e: React.FormEvent) => {
@@ -291,6 +300,7 @@ export default function Game() {
       if (trimmedGuess.toUpperCase() === drawingPrompt.toUpperCase()) {
         toast({
           title: "Correct!",
+
           description: "You guessed the prompt!",
         });
         generateNewPrompt();
@@ -317,235 +327,252 @@ export default function Game() {
   };
 
   return (
-    <> <div className="flex min-h-screen bg-muted relative overflow-hidden">
-      <Background regenerateOnChange={drawingPrompt + guess} style={{ zIndex: 0 }} />
-      <Toaster />
+    <>
+      {" "}
+      <div className="flex min-h-screen bg-muted relative overflow-hidden">
+        <Background
+          regenerateOnChange={drawingPrompt + guess}
+          style={{ zIndex: 0 }}
+        />
+        <Toaster />
 
-      {/* Lobby Code Display */}    
-      <div className="absolute bottom-4 left-4">
-        <h2 className="text-lg font-bold text-red-800">{lobbyCode}</h2>
-      </div>
+        {/* Lobby Code Display */}
+        <div className="absolute bottom-4 left-4">
+          <h2 className="text-lg font-bold text-red-800">{lobbyCode}</h2>
+        </div>
 
-     
-      
-
-      <div
-        className="w-1/4 p-4 flex flex-col bg-secondary rounded-md" style={{ zIndex: 2 }}
-      >
-        <Button
-          variant="outline"
-          onClick={() => router.push("/")}
-          className="w-full mt-2"
+        <div
+          className="w-1/4 p-4 flex flex-col bg-secondary rounded-md"
+          style={{ zIndex: 2 }}
         >
-          <Home className="mr-2 h-4 w-4" />
-          Home
-        </Button>
+          <Button
+            variant="outline"
+            onClick={() => router.push("/")}
+            className="w-full mt-2"
+          >
+            <Home className="mr-2 h-4 w-4" />
+            Home
+          </Button>
 
-        <h2 className="text-lg font-bold mb-4">Drawing Tools</h2>
+          <h2 className="text-lg font-bold mb-4">Drawing Tools</h2>
 
-        <div className="mb-4">
-          <p className="text-sm text-muted-foreground mt-1">
-            Ink Level: {inkLevel.toFixed(1)} / {MAX_INK}
-          </p>
-          <Progress
-            value={inkLevel}
-            className="mb-2"
-            style={{
-              "--radix-progress-indicator-transform": `translateX(-${
-                100 - (inkLevel || 0)
-              }%)`,
-            }}
-          />
-        </div>
-
-        <div className="mb-4">
-          <label htmlFor="brushSize" className="block text-sm font-medium">
-            Brush Size:
-          </label>
-          <Slider
-            id="brushSize"
-            defaultValue={[brushSize]}
-            max={20}
-            min={1}
-            step={1}
-            onValueChange={(value) => setBrushSize(value[0])}
-          />
-        </div>
-
-        <div className="mb-4">
-          <p className="block text-sm font-medium">Colors:</p>
-          <div className="flex flex-wrap justify-center gap-2">
-            {colors.map((color) => (
-              <button
-                key={color}
-                className={`w-6 h-6 rounded-full border-2 ${
-                  selectedColor === color
-                    ? "border-teal-500"
-                    : "border-transparent"
-                }`}
-                style={{ backgroundColor: color }}
-                onClick={() => setSelectedColor(color)}
-              />
-            ))}
+          <div className="mb-4">
+            <p className="text-sm text-muted-foreground mt-1">
+              Ink Level: {inkLevel.toFixed(1)} / {MAX_INK}
+            </p>
+            <Progress
+              value={inkLevel}
+              className="mb-2"
+              style={{
+                "--radix-progress-indicator-transform": `translateX(-${
+                  100 - (inkLevel || 0)
+                }%)`,
+              }}
+            />
           </div>
-        </div>
 
-        <Button
-          onClick={() => setDevToolsOpen(!devToolsOpen)}
-          className="w-full"
-        >
-          <Settings className="mr-2 h-4 w-4" />
-          Dev Tools
-        </Button>
+          <div className="mb-4">
+            <label htmlFor="brushSize" className="block text-sm font-medium">
+              Brush Size:
+            </label>
+            <Slider
+              id="brushSize"
+              defaultValue={[brushSize]}
+              max={20}
+              min={1}
+              step={1}
+              onValueChange={(value) => setBrushSize(value[0])}
+            />
+          </div>
 
-      {devToolsOpen && (
-          <>
-            <Button
-              variant="secondary"
-              onClick={refillInk}
-              disabled={inkLevel === MAX_INK}
-              className="w-full mt-2"
-            >
-              Refill Ink
-            </Button>
+          <div className="mb-4">
+            <p className="block text-sm font-medium">Colors:</p>
+            <div className="flex flex-wrap justify-center gap-2">
+              {colors.map((color) => (
+                <button
+                  key={color}
+                  className={`w-6 h-6 rounded-full border-2 ${
+                    selectedColor === color
+                      ? "border-teal-500"
+                      : "border-transparent"
+                  }`}
+                  style={{ backgroundColor: color }}
+                  onClick={() => setSelectedColor(color)}
+                />
+              ))}
+            </div>
+          </div>
 
-            <div className="mb-4">
-              <label
-                htmlFor="inkDepletionSpeed"
-                className="block text-sm font-medium"
+          <Button
+            onClick={() => setDevToolsOpen(!devToolsOpen)}
+            className="w-full"
+          >
+            <Settings className="mr-2 h-4 w-4" />
+            Dev Tools
+          </Button>
+
+          {devToolsOpen && (
+            <>
+              <Button
+                variant="secondary"
+                onClick={refillInk}
+                disabled={inkLevel === MAX_INK}
+                className="w-full mt-2"
               >
-                Ink Speed:
-              </label>
-              <Input
-                type="number"
-                id="inkDepletionSpeed"
-                value={inkDepletionSpeed}
-                onChange={(e) =>
-                  setInkDepletionSpeed(parseFloat(e.target.value))
-                }
-                className="w-full"
-                step="0.001"
-              />
-            </div>
+                Refill Ink
+              </Button>
 
-            <div className="mb-4">
-              <p className="block text-sm font-medium">Modifiers:</p>
-              <label className="inline-flex items-center cursor-pointer">
+              <div className="mb-4">
+                <label
+                  htmlFor="inkDepletionSpeed"
+                  className="block text-sm font-medium"
+                >
+                  Ink Speed:
+                </label>
                 <Input
-                  type="checkbox"
-                  className="form-checkbox h-5 w-5 text-teal-500"
-                  checked={randomizeColor}
-                  onChange={() => setRandomizeColor(!randomizeColor)}
+                  type="number"
+                  id="inkDepletionSpeed"
+                  value={inkDepletionSpeed}
+                  onChange={(e) =>
+                    setInkDepletionSpeed(parseFloat(e.target.value))
+                  }
+                  className="w-full"
+                  step="0.001"
                 />
-                <span className="ml-2 text-gray-700">
-                  Randomize Color on New Line
-                </span>
-              </label>
-            </div>
-            <div className="mb-4">
-              <label className="inline-flex items-center cursor-pointer">
-                <Input
-                  type="checkbox"
-                  className="form-checkbox h-5 w-5 text-teal-500"
-                  checked={isInkIntermittent}
-                  onChange={() => setIsInkIntermittent(!isInkIntermittent)}
-                />
-                <span className="ml-2 text-gray-700">Intermittent Ink</span>
-              </label>
-            </div>
+              </div>
 
-            <div className="mb-4">
-              <label className="inline-flex items-center cursor-pointer">
-                <Input
-                  type="checkbox"
-                  className="form-checkbox h-5 w-5 text-teal-500"
-                  checked={isInkReductionOn}
-                  onChange={() => setIsInkReductionOn(!isInkReductionOn)}
-                />
-                <span className="ml-2 text-gray-700">Ink Reduction</span>
-              </label>
-            </div>
-            <div className="mb-4">
-              <label className="inline-flex items-center cursor-pointer">
-                <Input
-                  type="checkbox"
-                  className="form-checkbox h-5 w-5 text-teal-500"
-                  checked={mirrorMode}
-                  onChange={() => setMirrorMode(!mirrorMode)}
-                />
-                <span className="ml-2 text-gray-700">Mirror Mode</span>
-              </label>
-            </div>
+              <div className="mb-4">
+                <p className="block text-sm font-medium">Modifiers:</p>
+                <label className="inline-flex items-center cursor-pointer">
+                  <Input
+                    type="checkbox"
+                    className="form-checkbox h-5 w-5 text-teal-500"
+                    checked={randomizeColor}
+                    onChange={() => setRandomizeColor(!randomizeColor)}
+                  />
+                  <span className="ml-2 text-gray-700">
+                    Randomize Color on New Line
+                  </span>
+                </label>
+              </div>
+              <div className="mb-4">
+                <label className="inline-flex items-center cursor-pointer">
+                  <Input
+                    type="checkbox"
+                    className="form-checkbox h-5 w-5 text-teal-500"
+                    checked={isInkIntermittent}
+                    onChange={() => setIsInkIntermittent(!isInkIntermittent)}
+                  />
+                  <span className="ml-2 text-gray-700">Intermittent Ink</span>
+                </label>
+              </div>
 
-          </>
-        
+              <div className="mb-4">
+                <label className="inline-flex items-center cursor-pointer">
+                  <Input
+                    type="checkbox"
+                    className="form-checkbox h-5 w-5 text-teal-500"
+                    checked={isInkReductionOn}
+                    onChange={() => setIsInkReductionOn(!isInkReductionOn)}
+                  />
+                  <span className="ml-2 text-gray-700">Ink Reduction</span>
+                </label>
+              </div>
+              <div className="mb-4">
+                <label className="inline-flex items-center cursor-pointer">
+                  <Input
+                    type="checkbox"
+                    className="form-checkbox h-5 w-5 text-teal-500"
+                    checked={mirrorMode}
+                    onChange={() => setMirrorMode(!mirrorMode)}
+                  />
+                  <span className="ml-2 text-gray-700">Mirror Mode</span>
+                </label>
+              </div>
+            </>
           )}
           {devToolsOpen && (
-                <label className="inline-flex items-center cursor-pointer">
+            <label className="inline-flex items-center cursor-pointer">
               <Input
                 type="checkbox"
                 className="form-checkbox h-5 w-5 text-teal-500"
                 checked={isDrawer}
                 onChange={toggleIsDrawer}
               />
-                    <span className="ml-2 text-gray-700">Drawer Mode</span>
-              </label>
+              <span className="ml-2 text-gray-700">Drawer Mode</span>
+            </label>
           )}
 
-            <Button
-          variant="secondary"
-          onClick={clearCanvas}
-              className="w-full mt-2"
+          <Button
+            variant="secondary"
+            onClick={clearCanvas}
+            className="w-full mt-2"
           >
-              <RefreshCw className="mr-2 h-4 w-4" />
-          Clear Canvas
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Clear Canvas
           </Button>
-        <Button
-          variant="secondary"
-          onClick={downloadDrawing}
-          className="w-full mt-2"
-        >
-              <Download className="mr-2 h-4 w-4" />
+          <Button
+            variant="secondary"
+            onClick={downloadDrawing}
+            className="w-full mt-2"
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Download
+          </Button>
+        </div>
 
-          Download
-            </Button>
-      </div>
-
-     
-      {/* Right Side - Canvas and Chat */}
-      <div className="w-3/4 flex flex-col items-center p-4">
-        <div className="absolute top-4 right-4">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline">Connected Users</Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56">
-              {connectedUsers?.map((user, index) => (
-                <DropdownMenuItem key={index}>{user}</DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
+        {/* Right Side - Canvas and Chat */}
+        <div className="w-3/4 flex flex-col items-center p-4">
+          <div className="absolute top-4 right-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline">Connected Users</Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56">
+                {connectedUsers?.map((user, index) => (
+                  <DropdownMenuItem key={index}>{user}</DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
+          <h1 className="text-2xl font-bold mb-2">
+            {isDrawer
+              ? `Draw: ${drawingPrompt}`
+              : "Guess what they are drawing"}
+          </h1>
+          {isDrawer && !promptSelected && (
+            <div className="flex flex-row gap-4 mt-2">
+              {promptOptions.map((option, index) => (
+                <div
+                  key={index}
+                  className="border border-gray-400 rounded-md p-2 cursor-pointer mt-2"
+                  onClick={() => {
+                    setDrawingPrompt(option);
+                    setPromptSelected(true);
+                  }}
+                >
+                  {option}
+                </div>
+              ))}
+            </div>
+          )}
           <canvas
-              ref={canvasRef}
-              className="border-2 border-gray-400 rounded-md shadow-md cursor-crosshair bg-white mt-4"
-              style={{ zIndex: 1 }}
-              {...(isDrawer && {
-                  onMouseDown: startDrawing,
-                  onMouseUp: endDrawing,
-                  onMouseMove: draw,
-                  onMouseLeave: endDrawing
-              })}> </canvas>
-        <h3>Nickname: {nickname}</h3>
-        <h1 className="text-2xl font-bold mb-2">
-          {isDrawer ? `Draw: ${drawingPrompt}` : "Guess what they are drawing"}
-        </h1>
+            ref={canvasRef}
+            className="border-2 border-gray-400 rounded-md shadow-md cursor-crosshair bg-white mt-4"
+            style={{ zIndex: 1 }}
+            {...(isDrawer && {
+              onMouseDown: startDrawing,
+              onMouseUp: endDrawing,
+              onMouseMove: draw,
+              onMouseLeave: endDrawing,
+            })}
+          ></canvas>
 
           {!isDrawer && (
             <form
               style={{ width: canvasWidth }}
-                            onSubmit={handleGuessSubmit}
-              className="flex mt-2 w-full max-w-[calc(min(calc(100vw * 0.7 * 0.85), calc(100vh * 0.7)))]"            
+              onSubmit={handleGuessSubmit}
+              className="flex mt-2 w-full max-w-[calc(min(calc(100vw * 0.7 * 0.85), calc(100vh * 0.7)))]"
             >
               <Input
                 type="text"
@@ -561,19 +588,21 @@ export default function Game() {
               />
               <Button type="submit">Guess!</Button>
             </form>
-        )}
-        {!isDrawer && (
-          <div
-            style={{ width: canvasWidth }}
-                        className="h-48 overflow-y-auto p-2 border rounded mt-2 w-full"
-          >
-            {chatLog.map((message, index) => (
-              <div key={index}>{message}</div>
-            ))}
-          </div>
-        )}
-          
-      </div>
-    </div></>
+          )}
+
+          {!isDrawer && (
+            <div
+              style={{ width: canvasWidth }}
+              className="h-48 overflow-y-auto p-2 border rounded mt-2 w-full"
+            >
+              {chatLog.map((message, index) => (
+                <div key={index}>{message}</div>
+              ))}
+            </div>
+          )}
+          <h3>Nickname: {nickname}</h3>
+        </div>
+      </div>{" "}
+    </>
   );
 }
