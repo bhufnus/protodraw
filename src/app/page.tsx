@@ -6,6 +6,7 @@ import { Loader2 } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Brush, Circle, Square, Palette } from 'lucide-react'; // Import icons
+import React from 'react';
 
 function generateGameCode(length: number): string {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -102,28 +103,65 @@ export default function Home() {
         3: Square,
     }), []);
 
+    const MemoizedIcon = React.memo(function Icon({ icon, size, x, y, rotation, animation, key }: {
+        icon: number;
+        size: number;
+        x: number;
+        y: number;
+        rotation: number;
+        animation: string;
+        key: React.Key;
+    }) {
+        const IconComponent = IconComponents[icon] || Square;
+        let className = "";
+
+        switch (icon) {
+            case 0:
+                className = "text-red-500";
+                break;
+            case 1:
+                className = "text-green-500";
+                break;
+            case 2:
+                className = "text-blue-500";
+                break;
+            default:
+                className = "text-yellow-500";
+        }
+
+        return (
+            <span
+                key={key}
+                className="absolute opacity-30"
+                style={{
+                    left: `${x}%`,
+                    top: `${y}%`,
+                    fontSize: `${size}px`,
+                    transform: `rotate(${rotation}deg)`,
+                    animation: animation,
+                }}
+            >
+                <IconComponent className={className} />
+            </span>
+        );
+    });
+
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-muted p-4 overflow-hidden">
       {/* Background Icons */}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
         {backgroundIcons.map((icon, index) => {
-          const IconComponent = IconComponents[icon.iconType] || Square;
-
           return (
-            <span
+            <MemoizedIcon
               key={icon.key}
-              className="absolute opacity-30"
-              style={{
-                left: `${icon.x}%`,
-                top: `${icon.y}%`,
-                fontSize: `${icon.size}px`,
-                transform: `rotate(${icon.rotation}deg)`,
-                animation: icon.animation,
-              }}
-            >
-              <IconComponent />
-            </span>
+              icon={icon.iconType}
+              size={icon.size}
+              x={icon.x}
+              y={icon.y}
+              rotation={icon.rotation}
+              animation={icon.animation}
+            />
           );
         })}
       </div>
