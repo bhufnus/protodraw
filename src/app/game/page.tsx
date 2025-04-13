@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { useRouter, useSearchParams } from "next/navigation";
 import { cn } from "@/lib/utils";
+import Background from "@/components/background";
 
 import {
   DropdownMenu,
@@ -78,9 +79,9 @@ export default function Game() {
   const [devToolsOpen, setDevToolsOpen] = useState(false);
   const [randomizeColor, setRandomizeColor] = useState(false);
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const lobbyCode = searchParams?.get("lobby");
-  const nickname = searchParams?.get("nickname") || "Guest";
+    const searchParams = useSearchParams();
+    const lobbyCode = searchParams?.get("lobby") || "";
+    const nickname = searchParams?.get("nickname") || "Guest";
 
   const [previousColor, setPreviousColor] = useState("#000000");
   const [connectedUsers, setConnectedUsers] = useState([nickname]);
@@ -306,7 +307,8 @@ export default function Game() {
     };
 
   return (
-    <div className="flex min-h-screen bg-muted">
+    <div className="flex min-h-screen bg-muted relative overflow-hidden">
+        <Background regenerateOnChange={drawingPrompt + guess} />
       <Toaster />
 
       {/* Lobby Code Display */}
@@ -556,4 +558,5 @@ export default function Game() {
     </div>
   );
 }
+
 

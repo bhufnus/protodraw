@@ -1,11 +1,11 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useCallback } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Brush, Circle, Square, Palette } from 'lucide-react'; // Import icons
+import Background from "@/components/background";
 import React from 'react';
 
 function generateGameCode(length: number): string {
@@ -23,52 +23,6 @@ export default function Home() {
   const [joinCode, setJoinCode] = useState('');
   const [nickname, setNickname] = useState('');
   const [createNickname, setCreateNickname] = useState('');
-  const [backgroundIcons, setBackgroundIcons] = useState([]);
-
-  const generateIcons = useCallback(() => {
-    const newIcons = [...Array(20)].map((_, index) => {
-      const size = Math.floor(Math.random() * 30) + 20; // Random size between 20 and 50
-      const x = Math.floor(Math.random() * 100); // Random position
-      const y = Math.floor(Math.random() * 100);
-      const rotation = Math.floor(Math.random() * 360); // Random rotation
-      const iconType = Math.floor(Math.random() * 4); // Randomly select icon
-
-      let animation = '';
-      switch (iconType) {
-        case 0: // Brush - Horizontal drift
-          animation = 'drift-left 10s linear infinite';
-          break;
-        case 2: // Circle - Horizontal drift
-          animation = 'drift 10s linear infinite';
-          break;
-        case 1: // Palette - Spin
-            animation = Math.random() < 0.5 ? 'spin-clockwise 15s linear infinite' : 'spin-counterclockwise 15s linear infinite';
-            break;
-          case 3: // Square - Falling
-            animation = 'fall 15s linear infinite';
-            break;
-        default:
-          animation = '';
-          break;
-      }
-
-
-      return {
-        key: index,
-        size,
-        x,
-        y,
-        rotation,
-        iconType,
-        animation,
-      };
-    });
-    setBackgroundIcons(newIcons);
-  }, []);
-
-  useEffect(() => {
-    generateIcons();
-  }, [generateIcons]);
 
     const handleCreateNewGame = () => {
         setIsLoading(true);
@@ -83,90 +37,33 @@ export default function Home() {
 
   const handleCreateNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCreateNickname(e.target.value.toUpperCase().slice(0, 7));
-    generateIcons(); // Regenerate icons on nickname change
   };
 
   const handleJoinCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setJoinCode(e.target.value.toUpperCase());
-    generateIcons(); // Regenerate icons on join code change
   };
 
     const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setNickname(e.target.value.toUpperCase().slice(0, 7));
-        generateIcons(); // Regenerate icons on nickname change
     };
 
-    const IconComponents = useMemo(() => ({
-        0: Brush,
-        1: Palette,
-        2: Circle,
-        3: Square,
-    }), []);
+    const iconStyle = {
+        position: 'absolute',
+        opacity: 0.3,
+    };
 
-    const MemoizedIcon = React.memo(function Icon({ icon, size, x, y, rotation, animation, id }: {
-        icon: number;
-        size: number;
-        x: number;
-        y: number;
-        rotation: number;
-        animation: string;
-        id: React.Key;
-    }) {
-        const IconComponent = IconComponents[icon] || Square;
-        let className = "";
-
-        switch (icon) {
-            case 0:
-                className = "text-red-500";
-                break;
-            case 1:
-                className = "text-green-500";
-                break;
-            case 2:
-                className = "text-blue-500";
-                break;
-            default:
-                className = "text-yellow-500";
-        }
-
-        return (
-            <span
-                key={id}
-                className="absolute opacity-30"
-                style={{
-                    left: `${x}%`,
-                    top: `${y}%`,
-                    fontSize: `${size}px`,
-                    transform: `rotate(${rotation}deg)`,
-                    animation: animation,
-                }}
-            >
-                <IconComponent className={className} />
-            </span>
-        );
+    const generateIconStyle = (x: number, y: number, rotation: number, fontSize: number) => ({
+        ...iconStyle,
+        left: `${x}%`,
+        top: `${y}%`,
+        fontSize: `${fontSize}px`,
+        transform: `rotate(${rotation}deg)`,
     });
-
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-muted p-4 overflow-hidden">
       {/* Background Icons */}
-      <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-        {backgroundIcons.map((icon) => {
-          return (
-            <MemoizedIcon
-              key={icon.key}
-              id={icon.key}
-              icon={icon.iconType}
-              size={icon.size}
-              x={icon.x}
-              y={icon.y}
-              rotation={icon.rotation}
-              animation={icon.animation}
-            />
-          );
-        })}
-      </div>
-
+        <Background regenerateOnChange={createNickname + joinCode + nickname} />
 
       <h1 className="text-4xl font-bold mb-8 relative">Drawing Roguelike</h1>
 
@@ -259,4 +156,5 @@ export default function Home() {
     </div>
   );
 }
+
 

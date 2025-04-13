@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Home, UserPlus } from "lucide-react";
+import Background from "@/components/background";
 
 export default function WaitingRoom() {
   const router = useRouter();
@@ -38,7 +39,9 @@ export default function WaitingRoom() {
 
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-muted p-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-muted p-4 relative overflow-hidden">
+        <Background regenerateOnChange={lobbyCode + nickname + connectedUsers.join('')} />
+
       <h1 className="text-4xl font-bold mb-2">Waiting Room</h1>
       <h2 className="text-2xl font-semibold mb-4">Lobby Code: <span className="text-red-500">{lobbyCode}</span></h2>
 
@@ -81,4 +84,5 @@ export default function WaitingRoom() {
     </div>
   );
 }
+
 
