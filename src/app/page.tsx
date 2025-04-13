@@ -82,17 +82,17 @@ export default function Home() {
     };
 
   const handleCreateNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCreateNickname(e.target.value.slice(0, 7));
+    setCreateNickname(e.target.value.toUpperCase().slice(0, 7));
     generateIcons(); // Regenerate icons on nickname change
   };
 
   const handleJoinCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setJoinCode(e.target.value);
+    setJoinCode(e.target.value.toUpperCase());
     generateIcons(); // Regenerate icons on join code change
   };
 
     const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setNickname(e.target.value.slice(0, 7));
+        setNickname(e.target.value.toUpperCase().slice(0, 7));
         generateIcons(); // Regenerate icons on nickname change
     };
 
