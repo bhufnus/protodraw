@@ -101,9 +101,9 @@ export default function Game() {
     if (!context) return;
 
     // Set canvas dimensions
-    const canvasWidthCalc = window.innerWidth * 0.7 * 0.85;
-    const canvasHeight = window.innerHeight * 0.7;
-    const squareSize = Math.min(canvasWidthCalc, canvasHeight) * 0.7;
+    const canvasWidthCalc = window.innerWidth * 0.85 * 0.9;
+    const canvasHeight = window.innerHeight * 0.85;
+    const squareSize = Math.min(canvasWidthCalc, canvasHeight);
     canvas.width = squareSize;
 
     canvas.height = squareSize;
@@ -544,7 +544,7 @@ export default function Game() {
           {!isDrawer && (
             <form
               style={{ width: canvasWidth }}
-              onSubmit={handleGuessSubmit}
+                            onSubmit={handleGuessSubmit}
               className="flex mt-2 w-full max-w-[calc(min(calc(100vw * 0.7 * 0.85), calc(100vh * 0.7)))]"            
             >
               <Input
@@ -565,7 +565,7 @@ export default function Game() {
         {!isDrawer && (
           <div
             style={{ width: canvasWidth }}
-            className="h-48 overflow-y-auto p-2 border rounded mt-2 w-full max-w-[calc(min(calc(100vw * 0.7 * 0.85), calc(100vh * 0.7)))]"
+                        className="h-48 overflow-y-auto p-2 border rounded mt-2 w-full"
           >
             {chatLog.map((message, index) => (
               <div key={index}>{message}</div>
