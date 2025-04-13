@@ -82,7 +82,7 @@ export default function Home() {
     };
 
   const handleCreateNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCreateNickname(e.target.value);
+    setCreateNickname(e.target.value.slice(0, 7));
     generateIcons(); // Regenerate icons on nickname change
   };
 
@@ -92,7 +92,7 @@ export default function Home() {
   };
 
     const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setNickname(e.target.value);
+        setNickname(e.target.value.slice(0, 7));
         generateIcons(); // Regenerate icons on nickname change
     };
 
@@ -181,6 +181,7 @@ export default function Home() {
               value={createNickname}
               onChange={handleCreateNicknameChange}
               className="w-full max-w-xs"
+              maxLength={7}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault(); // Prevent form submission
@@ -229,6 +230,7 @@ export default function Home() {
               value={nickname}
               onChange={handleNicknameChange}
               className="w-full max-w-xs"
+              maxLength={7}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault(); // Prevent form submission
@@ -257,3 +259,4 @@ export default function Home() {
     </div>
   );
 }
+
