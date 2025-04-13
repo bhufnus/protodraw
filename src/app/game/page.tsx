@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Download, RefreshCw, Settings, Home } from "lucide-react";
@@ -89,17 +89,28 @@ export default function Game() {
   const inkIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const [isInkReductionOn, setIsInkReductionOn] = useState(false);
   const [mirrorMode, setMirrorMode] = useState(false);
+    const [canvasWidth, setCanvasWidth] = useState(0);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    
 
     const context = canvas.getContext("2d");
     if (!context) return;
 
     // Set canvas dimensions
-    canvas.width = window.innerWidth * 0.7 * 0.7;
-    canvas.height = window.innerHeight * 0.7;
+    const canvasWidthCalc = window.innerWidth * 0.7 * 0.85;
+    const canvasHeight = window.innerHeight * 0.7;
+    const squareSize = Math.min(canvasWidthCalc, canvasHeight) * 0.7;
+    canvas.width = squareSize;
+    
+    
+    
+        
+        canvas.height = squareSize;
+
+        setCanvasWidth(squareSize);
 
     // Set default styles
     context.lineCap = "round";
@@ -507,19 +518,14 @@ export default function Game() {
         <h1 className="text-2xl font-bold mb-2">Draw: {drawingPrompt}</h1>
 
 
-        <canvas
-          ref={canvasRef}
-          className="border-2 border-gray-400 rounded-md shadow-md cursor-crosshair bg-white mt-4"
-                    onMouseDown={startDrawing}
-          onMouseUp={endDrawing}
-          onMouseMove={draw}
-          onMouseLeave={endDrawing}
-        ></canvas>
         <form
-          onSubmit={handleGuessSubmit}
-          className="flex mt-2 w-full max-w-md"
+          style={{width: canvasWidth}}
+          onSubmit={handleGuessSubmit} className="flex mt-2 w-full max-w-[calc(min(calc(100vw * 0.7 * 0.85), calc(100vh * 0.7)))]"
+          className="flex mt-2"
+          
         >
           <Input
+            
             type="text"
             placeholder="Guess the drawing!"
             value={guess}
@@ -533,7 +539,15 @@ export default function Game() {
           />
           <Button type="submit">Guess!</Button>
         </form>
-          <div className="h-48 overflow-y-auto p-2 border rounded mt-2 w-full max-w-md">
+          <canvas
+          ref={canvasRef}
+          className="border-2 border-gray-400 rounded-md shadow-md cursor-crosshair bg-white mt-4"
+                    onMouseDown={startDrawing}
+          onMouseUp={endDrawing}
+          onMouseMove={draw}
+          onMouseLeave={endDrawing}
+        ></canvas>
+          <div style={{width: canvasWidth}} className="h-48 overflow-y-auto p-2 border rounded mt-2 w-full max-w-[calc(min(calc(100vw * 0.7 * 0.85), calc(100vh * 0.7)))]">
               {chatLog.map((message, index) => (
                   <div key={index}>{message}</div>
               ))}
@@ -542,3 +556,4 @@ export default function Game() {
     </div>
   );
 }
+
