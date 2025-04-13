@@ -308,7 +308,7 @@ export default function Game() {
 
   return (
     <div className="flex min-h-screen bg-muted relative overflow-hidden">
-        <Background regenerateOnChange={drawingPrompt + guess} />
+        <Background regenerateOnChange={drawingPrompt + guess} style={{zIndex: -1}} />
       <Toaster />
 
       {/* Lobby Code Display */}
@@ -558,5 +558,6 @@ export default function Game() {
     </div>
   );
 }
+
 
 
