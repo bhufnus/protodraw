@@ -18,7 +18,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import React from "react";
 
 const colors = [
   "#000000",
@@ -82,9 +81,8 @@ export default function Game() {
   const [isDrawer, setIsDrawer] = useState(true);
   const router = useRouter();
   const searchParams = useSearchParams();
-    const searchParamsReadonly = React.use(useSearchParams());
-  const lobbyCode = searchParamsReadonly.get('lobby') || "";
-  const nickname = searchParamsReadonly.get('nickname') || "Guest";
+  const lobbyCode = searchParams.get('lobby') || "";
+  const nickname = searchParams.get('nickname') || "Guest";
 
   const [previousColor, setPreviousColor] = useState("#000000");
   const [connectedUsers, setConnectedUsers] = useState([nickname]);
@@ -328,7 +326,8 @@ export default function Game() {
         <h2 className="text-lg font-bold text-red-800">{lobbyCode}</h2>
       </div>
 
-      {/* Left Sidebar - Drawing Tools */}
+     
+      
 
       <div
         className="w-1/4 p-4 flex flex-col bg-secondary rounded-md" style={{ zIndex: 2 }}
@@ -396,24 +395,10 @@ export default function Game() {
           className="w-full"
         >
           <Settings className="mr-2 h-4 w-4" />
-          Dev Tools 
+          Dev Tools
         </Button>
 
-        {devToolsOpen && (
-          <>
-            <label className="inline-flex items-center cursor-pointer">
-              <Input
-                type="checkbox"
-                className="form-checkbox h-5 w-5 text-teal-500"
-                checked={isDrawer}
-                onChange={toggleIsDrawer}
-              />
-              <span className="ml-2 text-gray-700">Drawer Mode</span>
-            </label>
-          </>
-        )}
-
-        {devToolsOpen && (
+      {devToolsOpen && (
           <>
             <Button
               variant="secondary"
@@ -492,34 +477,41 @@ export default function Game() {
               </label>
             </div>
 
-            <Button
-              variant="secondary"
-              onClick={generateNewPrompt}
-              className="w-full mt-2"
-            >
-              New Prompt
-            </Button>
           </>
-        )}
+        
+          )}
+          {devToolsOpen && (
+                <label className="inline-flex items-center cursor-pointer">
+              <Input
+                type="checkbox"
+                className="form-checkbox h-5 w-5 text-teal-500"
+                checked={isDrawer}
+                onChange={toggleIsDrawer}
+              />
+                    <span className="ml-2 text-gray-700">Drawer Mode</span>
+              </label>
+          )}
 
-        <Button
+            <Button
           variant="secondary"
           onClick={clearCanvas}
-          className="w-full mt-2"
-        >
-          <RefreshCw className="mr-2 h-4 w-4" />
+              className="w-full mt-2"
+          >
+              <RefreshCw className="mr-2 h-4 w-4" />
           Clear Canvas
-        </Button>
+          </Button>
         <Button
           variant="secondary"
           onClick={downloadDrawing}
           className="w-full mt-2"
         >
-          <Download className="mr-2 h-4 w-4" />
+              <Download className="mr-2 h-4 w-4" />
+
           Download
-        </Button>
+            </Button>
       </div>
 
+     
       {/* Right Side - Canvas and Chat */}
       <div className="w-3/4 flex flex-col items-center p-4">
         <div className="absolute top-4 right-4">
@@ -533,61 +525,56 @@ export default function Game() {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-        </div>
-        <h3>Nickname: {nickname}</h3>
-        <h1 className="text-2xl font-bold mb-2">{isDrawer ? `Draw: ${drawingPrompt}` : 'Guess what they are drawing'}</h1>
-
-        {!isDrawer && (
-                  <form
-          style={{ width: canvasWidth }}
-          onSubmit={handleGuessSubmit}
-          className="flex mt-2 w-full max-w-[calc(min(calc(100vw * 0.7 * 0.85), calc(100vh * 0.7)))]"
-        >
-          <Input
-            type="text"
-            placeholder="Guess the drawing!"
-            value={guess}
-            onChange={(e) => setGuess(e.target.value)}
-            className="mr-2"
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                handleGuessSubmit(e);
-              }
-            }}
-          />
-          <Button type="submit">Guess!</Button>
-        </form>
-        )}
-
-        {isDrawer && (
-          <>
-            <Button
-              variant="secondary"
-              onClick={generateNewPrompt}
-              className="w-full mt-2"
-            >
-              New Prompt
-            </Button>
-          </>
-        )}
-        
-          {chatLog.map((message, index) => (
-            <div key={index}>{message}</div>
-          ))}
-        
-        {isDrawer && (
+          </div>
           <canvas
-            ref={canvasRef}
-            className="border-2 border-gray-400 rounded-md shadow-md cursor-crosshair bg-white mt-4" style={{ zIndex: 1 }}
-            onMouseDown={startDrawing}
-            onMouseUp={endDrawing}
-            onMouseMove={draw}
-            onMouseLeave={endDrawing}
-          ></canvas>
-        )}
-      </div>
-    </div>
-    </> );
-}
+              ref={canvasRef}
+              className="border-2 border-gray-400 rounded-md shadow-md cursor-crosshair bg-white mt-4"
+              style={{ zIndex: 1 }}
+              {...(isDrawer && {
+                  onMouseDown: startDrawing,
+                  onMouseUp: endDrawing,
+                  onMouseMove: draw,
+                  onMouseLeave: endDrawing
+              })}> </canvas>
+        <h3>Nickname: {nickname}</h3>
+        <h1 className="text-2xl font-bold mb-2">
+          {isDrawer ? `Draw: ${drawingPrompt}` : "Guess what they are drawing"}
+        </h1>
 
+          {!isDrawer && (
+            <form
+              style={{ width: canvasWidth }}
+              onSubmit={handleGuessSubmit}
+              className="flex mt-2 w-full max-w-[calc(min(calc(100vw * 0.7 * 0.85), calc(100vh * 0.7)))]"            
+            >
+              <Input
+                type="text"
+                placeholder="Guess the drawing!"
+                value={guess}
+                onChange={(e) => setGuess(e.target.value)}
+                className="mr-2"
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    handleGuessSubmit(e);
+                  }
+                }}
+              />
+              <Button type="submit">Guess!</Button>
+            </form>
+        )}
+        {!isDrawer && (
+          <div
+            style={{ width: canvasWidth }}
+            className="h-48 overflow-y-auto p-2 border rounded mt-2 w-full max-w-[calc(min(calc(100vw * 0.7 * 0.85), calc(100vh * 0.7)))]"
+          >
+            {chatLog.map((message, index) => (
+              <div key={index}>{message}</div>
+            ))}
+          </div>
+        )}
+          
+      </div>
+    </div></>
+  );
+}
 
