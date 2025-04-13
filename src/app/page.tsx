@@ -103,14 +103,14 @@ export default function Home() {
         3: Square,
     }), []);
 
-    const MemoizedIcon = React.memo(function Icon({ icon, size, x, y, rotation, animation, key }: {
+    const MemoizedIcon = React.memo(function Icon({ icon, size, x, y, rotation, animation, id }: {
         icon: number;
         size: number;
         x: number;
         y: number;
         rotation: number;
         animation: string;
-        key: React.Key;
+        id: React.Key;
     }) {
         const IconComponent = IconComponents[icon] || Square;
         let className = "";
@@ -131,7 +131,7 @@ export default function Home() {
 
         return (
             <span
-                key={key}
+                key={id}
                 className="absolute opacity-30"
                 style={{
                     left: `${x}%`,
@@ -155,6 +155,7 @@ export default function Home() {
           return (
             <MemoizedIcon
               key={icon.key}
+              id={icon.key}
               icon={icon.iconType}
               size={icon.size}
               x={icon.x}
@@ -238,4 +239,3 @@ export default function Home() {
     </div>
   );
 }
-
