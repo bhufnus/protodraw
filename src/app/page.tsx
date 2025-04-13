@@ -95,23 +95,20 @@ export default function Home() {
         generateIcons(); // Regenerate icons on nickname change
     };
 
+    const IconComponents = useMemo(() => ({
+        0: Brush,
+        1: Palette,
+        2: Circle,
+        3: Square,
+    }), []);
+
+
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-muted p-4 overflow-hidden">
       {/* Background Icons */}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
         {backgroundIcons.map((icon, index) => {
-          const IconComponent = useMemo(() => {
-            switch (icon.iconType) {
-              case 0:
-                return <Brush className="text-red-500" />;
-              case 1:
-                return <Palette className="text-green-500" />;
-              case 2:
-                return <Circle className="text-blue-500" />;
-              default:
-                return <Square className="text-yellow-500" />;
-            }
-          }, [icon.iconType]);
+          const IconComponent = IconComponents[icon.iconType] || Square;
 
           return (
             <span
