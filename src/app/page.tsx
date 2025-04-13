@@ -1,11 +1,11 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Brush, Circle, Square, Triangle, Palette } from 'lucide-react'; // Import icons
+import { Brush, Circle, Square, Palette } from 'lucide-react'; // Import icons
 
 function generateGameCode(length: number): string {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -24,29 +24,29 @@ export default function Home() {
   const [createNickname, setCreateNickname] = useState('');
   const [backgroundIcons, setBackgroundIcons] = useState([]);
 
-  useEffect(() => {
-    const generateIcons = () => {
-      const newIcons = [...Array(20)].map((_, index) => {
-        const size = Math.floor(Math.random() * 30) + 20; // Random size between 20 and 50
-        const x = Math.floor(Math.random() * 100); // Random position
-        const y = Math.floor(Math.random() * 100);
-        const rotation = Math.floor(Math.random() * 360); // Random rotation
-        const iconType = Math.floor(Math.random() * 4); // Randomly select icon
+  const generateIcons = useCallback(() => {
+    const newIcons = [...Array(20)].map((_, index) => {
+      const size = Math.floor(Math.random() * 30) + 20; // Random size between 20 and 50
+      const x = Math.floor(Math.random() * 100); // Random position
+      const y = Math.floor(Math.random() * 100);
+      const rotation = Math.floor(Math.random() * 360); // Random rotation
+      const iconType = Math.floor(Math.random() * 4); // Randomly select icon
 
-        return {
-          key: index,
-          size,
-          x,
-          y,
-          rotation,
-          iconType,
-        };
-      });
-      setBackgroundIcons(newIcons);
-    };
-
-    generateIcons();
+      return {
+        key: index,
+        size,
+        x,
+        y,
+        rotation,
+        iconType,
+      };
+    });
+    setBackgroundIcons(newIcons);
   }, []);
+
+  useEffect(() => {
+    generateIcons();
+  }, [generateIcons]);
 
   const handleCreateNewGame = () => {
     setIsLoading(true);
@@ -58,6 +58,21 @@ export default function Home() {
     setIsLoading(true);
     router.push(`/game?lobby=${joinCode}&nickname=${nickname}`);
   };
+
+  const handleCreateNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCreateNickname(e.target.value);
+    generateIcons(); // Regenerate icons on nickname change
+  };
+
+  const handleJoinCodeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setJoinCode(e.target.value);
+    generateIcons(); // Regenerate icons on join code change
+  };
+
+    const handleNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setNickname(e.target.value);
+        generateIcons(); // Regenerate icons on nickname change
+    };
 
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-muted p-4 overflow-hidden">
@@ -111,7 +126,7 @@ export default function Home() {
               type="text"
               placeholder="Enter Nickname"
               value={createNickname}
-              onChange={(e) => setCreateNickname(e.target.value)}
+              onChange={handleCreateNicknameChange}
               className="w-full max-w-xs"
             />
             <Button
@@ -140,14 +155,14 @@ export default function Home() {
               type="text"
               placeholder="Enter Lobby Code"
               value={joinCode}
-              onChange={(e) => setJoinCode(e.target.value)}
+              onChange={handleJoinCodeChange}
               className="w-full max-w-xs"
             />
             <Input
               type="text"
               placeholder="Enter Nickname"
               value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
+              onChange={handleNicknameChange}
               className="w-full max-w-xs"
             />
             <Button
