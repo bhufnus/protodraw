@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Loader2 } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -99,38 +99,33 @@ export default function Home() {
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-muted p-4 overflow-hidden">
       {/* Background Icons */}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-        {backgroundIcons.map((icon) => {
-          let iconComponent;
-
-          switch (icon.iconType) {
-            case 0:
-              iconComponent = <Brush className="text-red-500" />;
-              break;
-            case 1:
-              iconComponent = <Palette className="text-green-500" />;
-              break;
-            case 2:
-              iconComponent = <Circle className="text-blue-500" />;
-              break;
-            default:
-              iconComponent = <Square className="text-yellow-500" />;
-              break;
-          }
+        {backgroundIcons.map((icon, index) => {
+          const IconComponent = useMemo(() => {
+            switch (icon.iconType) {
+              case 0:
+                return <Brush className="text-red-500" />;
+              case 1:
+                return <Palette className="text-green-500" />;
+              case 2:
+                return <Circle className="text-blue-500" />;
+              default:
+                return <Square className="text-yellow-500" />;
+            }
+          }, [icon.iconType]);
 
           return (
             <span
               key={icon.key}
+              className="absolute opacity-30"
               style={{
-                position: 'absolute',
                 left: `${icon.x}%`,
                 top: `${icon.y}%`,
                 fontSize: `${icon.size}px`,
                 transform: `rotate(${icon.rotation}deg)`,
-                opacity: 0.3,
                 animation: icon.animation,
               }}
             >
-              {iconComponent}
+              <IconComponent />
             </span>
           );
         })}
