@@ -9,6 +9,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { useRouter, useSearchParams } from "next/navigation";
+import { cn } from "@/lib/utils";
 
 import {
   DropdownMenu,
@@ -72,13 +73,14 @@ export default function Game() {
   const [inkLevel, setInkLevel] = useState(MAX_INK);
   const [drawingPrompt, setDrawingPrompt] = useState("");
   const [guess, setGuess] = useState("");
+    const [chatLog, setChatLog] = useState<string[]>([]);
   const [inkDepletionSpeed, setInkDepletionSpeed] = useState(0.115);
   const [devToolsOpen, setDevToolsOpen] = useState(false);
   const [randomizeColor, setRandomizeColor] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const lobbyCode = searchParams.get("lobby");
-  const nickname = searchParams.get("nickname") || "Guest";
+  const lobbyCode = searchParams?.get("lobby");
+  const nickname = searchParams?.get("nickname") || "Guest";
 
   const [previousColor, setPreviousColor] = useState("#000000");
   const [connectedUsers, setConnectedUsers] = useState([nickname]);
@@ -86,6 +88,7 @@ export default function Game() {
   const [isInkOn, setIsInkOn] = useState(true);
   const inkIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const [isInkReductionOn, setIsInkReductionOn] = useState(false);
+  const [mirrorMode, setMirrorMode] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -179,34 +182,45 @@ export default function Game() {
     }
   };
 
-  const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    if (!isDrawing) return;
-    if (inkLevel <= 0) return;
+    const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
+        if (!isDrawing) return;
+        if (inkLevel <= 0) return;
 
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+        const canvas = canvasRef.current;
+        if (!canvas) return;
 
-    const context = canvas.getContext("2d");
-    if (!context) return;
+        const context = canvas.getContext("2d");
+        if (!context) return;
 
-    const x = e.nativeEvent.offsetX;
-    const y = e.nativeEvent.offsetY;
+        const x = e.nativeEvent.offsetX;
+        const y = e.nativeEvent.offsetY;
 
-    if (isInkOn) {
-      context.lineTo(x, y);
-      context.stroke();
-    } else {
-      context.beginPath(); // Start a new path to prevent connecting lines
-      context.moveTo(x, y);
-    }
+        if (isInkOn) {
+            context.lineTo(x, y);
+            context.stroke();
 
-    let inkReduction = inkDepletionSpeed;
-    if (isInkReductionOn) {
-      inkReduction += (MAX_INK * 0.2) / MAX_INK; // Reduce by 20%
-    }
+            if (mirrorMode) {
+                // Calculate the mirrored coordinates
+                const mirroredX = canvas.width - x;
 
-    setInkLevel((prevInk) => Math.max(0, prevInk - inkReduction));
-  };
+                // Draw on the mirrored side
+                context.beginPath();
+                context.moveTo(mirroredX, y);
+                context.lineTo(canvas.width - e.nativeEvent.offsetX, e.nativeEvent.offsetY);
+                context.stroke();
+            }
+        } else {
+            context.beginPath(); // Start a new path to prevent connecting lines
+            context.moveTo(x, y);
+        }
+
+        let inkReduction = inkDepletionSpeed;
+        if (isInkReductionOn) {
+            inkReduction += (MAX_INK * 0.2) / MAX_INK; // Reduce by 20%
+        }
+
+        setInkLevel((prevInk) => Math.max(0, prevInk - inkReduction));
+    };
 
   const clearCanvas = () => {
     const canvas = canvasRef.current;
@@ -253,23 +267,25 @@ export default function Game() {
     );
   };
 
-  const handleGuessSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (guess.trim().toLowerCase() === drawingPrompt.toLowerCase()) {
-      toast({
-        title: "Correct!",
-        description: "You guessed the prompt!",
-      });
-      generateNewPrompt();
-      clearCanvas();
-    } else {
-      toast({
-        title: "Incorrect",
-        description: "Try again!",
-      });
-    }
-    setGuess("");
-  };
+    const handleGuessSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (guess.trim().toLowerCase() === drawingPrompt.toLowerCase()) {
+            toast({
+                title: "Correct!",
+                description: "You guessed the prompt!",
+            });
+            generateNewPrompt();
+            clearCanvas();
+            setChatLog(prevChatLog => [...prevChatLog, `${nickname} guessed the prompt!`]);
+        } else {
+            setChatLog(prevChatLog => [...prevChatLog, `${nickname} guessed ${guess}`]);
+            toast({
+                title: "Incorrect",
+                description: "Try again!",
+            });
+        }
+        setGuess("");
+    };
 
   return (
     <div className="flex min-h-screen bg-muted">
@@ -423,6 +439,19 @@ export default function Game() {
                 </span>
               </label>
             </div>
+                <div className="mb-4">
+                    <label className="inline-flex items-center cursor-pointer">
+                        <Input
+                            type="checkbox"
+                            className="form-checkbox h-5 w-5 text-teal-500"
+                            checked={mirrorMode}
+                            onChange={() => setMirrorMode(!mirrorMode)}
+                        />
+                        <span className="ml-2 text-gray-700">
+                            Mirror Mode
+                        </span>
+                    </label>
+                </div>
 
             <Button
               variant="secondary"
@@ -453,7 +482,7 @@ export default function Game() {
       </div>
 
       {/* Right Side - Canvas and Chat */}
-      <div className="w-3/4 flex flex-col items-center justify-center p-4">
+      <div className="w-3/4 flex flex-col items-center p-4">
         <div className="absolute top-4 right-4">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -469,15 +498,6 @@ export default function Game() {
         <h3>Nickname: {nickname}</h3>
         <h1 className="text-2xl font-bold mb-2">Draw: {drawingPrompt}</h1>
 
-        <canvas
-          ref={canvasRef}
-          className="border-2 border-gray-400 rounded-md shadow-md cursor-crosshair bg-white"
-          onMouseDown={startDrawing}
-          onMouseUp={endDrawing}
-          onMouseMove={draw}
-          onMouseLeave={endDrawing}
-        ></canvas>
-
         <form
           onSubmit={handleGuessSubmit}
           className="flex mt-2 w-full max-w-md"
@@ -488,9 +508,30 @@ export default function Game() {
             value={guess}
             onChange={(e) => setGuess(e.target.value)}
             className="mr-2"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                handleGuessSubmit(e);
+              }
+            }}
           />
           <Button type="submit">Guess!</Button>
         </form>
+
+          {/* Chat Log */}
+          <div className="h-48 overflow-y-auto p-2 border rounded mt-2 w-full max-w-md">
+              {chatLog.map((message, index) => (
+                  <div key={index}>{message}</div>
+              ))}
+          </div>
+
+        <canvas
+          ref={canvasRef}
+          className="border-2 border-gray-400 rounded-md shadow-md cursor-crosshair bg-white mt-4"
+          onMouseDown={startDrawing}
+          onMouseUp={endDrawing}
+          onMouseMove={draw}
+          onMouseLeave={endDrawing}
+        ></canvas>
       </div>
     </div>
   );

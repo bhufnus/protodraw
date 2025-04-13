@@ -70,16 +70,16 @@ export default function Home() {
     generateIcons();
   }, [generateIcons]);
 
-  const handleCreateNewGame = () => {
-    setIsLoading(true);
-    const newGameCode = generateGameCode(7);
-    router.push(`/waiting-room?lobby=${newGameCode}&nickname=${createNickname}`);
-  };
+    const handleCreateNewGame = () => {
+        setIsLoading(true);
+        const newGameCode = generateGameCode(7);
+        router.push(`/waiting-room?lobby=${newGameCode}&nickname=${createNickname}`);
+    };
 
-  const handleJoinGame = () => {
-    setIsLoading(true);
-    router.push(`/game?lobby=${joinCode}&nickname=${nickname}`);
-  };
+    const handleJoinGame = () => {
+        setIsLoading(true);
+        router.push(`/game?lobby=${joinCode}&nickname=${nickname}`);
+    };
 
   const handleCreateNicknameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setCreateNickname(e.target.value);
@@ -151,7 +151,7 @@ export default function Home() {
     <div className="relative flex min-h-screen flex-col items-center justify-center bg-muted p-4 overflow-hidden">
       {/* Background Icons */}
       <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-        {backgroundIcons.map((icon, index) => {
+        {backgroundIcons.map((icon) => {
           return (
             <MemoizedIcon
               key={icon.key}
@@ -174,13 +174,19 @@ export default function Home() {
         {/* Create New Game Section */}
         <div className="w-1/2">
           <h2 className="text-2xl font-semibold mb-4">Create New Game</h2>
-          <div className="flex flex-col items-center space-y-2">
+          <form onSubmit={handleCreateNewGame} className="flex flex-col items-center space-y-2">
             <Input
               type="text"
               placeholder="Enter Nickname"
               value={createNickname}
               onChange={handleCreateNicknameChange}
               className="w-full max-w-xs"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault(); // Prevent form submission
+                  handleCreateNewGame();
+                }
+              }}
             />
             <Button
               className="rounded-md px-4 py-2 hover:bg-primary/80 disabled:bg-primary/50 flex items-center justify-center"
@@ -197,19 +203,25 @@ export default function Home() {
                 "Create New Game"
               )}
             </Button>
-          </div>
+          </form>
         </div>
 
         {/* Join Game Section */}
         <div className="w-1/2">
           <h2 className="text-2xl font-semibold mb-4">Join Game</h2>
-          <div className="flex flex-col items-center space-y-2">
+          <form onSubmit={handleJoinGame} className="flex flex-col items-center space-y-2">
             <Input
               type="text"
               placeholder="Enter Lobby Code"
               value={joinCode}
               onChange={handleJoinCodeChange}
               className="w-full max-w-xs"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault(); // Prevent form submission
+                  handleJoinGame();
+                }
+              }}
             />
             <Input
               type="text"
@@ -217,6 +229,12 @@ export default function Home() {
               value={nickname}
               onChange={handleNicknameChange}
               className="w-full max-w-xs"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault(); // Prevent form submission
+                  handleJoinGame();
+                }
+              }}
             />
             <Button
               className="rounded-md px-4 py-2 hover:bg-secondary/80 disabled:bg-secondary/50"
@@ -233,7 +251,7 @@ export default function Home() {
                 "Join Game"
               )}
             </Button>
-          </div>
+          </form>
         </div>
       </div>
     </div>
